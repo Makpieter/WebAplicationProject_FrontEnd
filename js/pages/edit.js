@@ -106,11 +106,11 @@ function renderItemForm(item = null) {
             rows: 4
         },
         {
-            id: 'active',
-            name: 'active',
-            label: 'Status',
+            id: 'tags',
+            name: 'tags',
+            label: 'Tags',
             type: 'checkbox',
-            checkboxLabel: 'Active'
+            checkboxLabel: 'Tags'
         }
         // Add more fields specific to your entity
     ];
