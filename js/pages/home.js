@@ -14,12 +14,13 @@ function renderHomePage() {
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body text-center">
-                        <h1 class="card-title mb-4">Welcome to Web Application Starter</h1>
+                        <h1 class="card-title mb-4">Welcome to DnD Q&A Center!</h1>
                         
                         <p class="card-text">
-                            This is a starter template for building web applications that connect 
-                            to a Spring REST API backend. It provides basic CRUD functionality 
-                            and a simple structure to build upon.
+                            Having some questions about your recent campaign?
+                            Are you not sure if a certain action is within the limits?
+                            Or maybe your player created the most overpowered character imaginable and you need help?
+                            Welcome to the Dundeons & Dragons Q&A Database! Ask your question here, and they shall be answered.
                         </p>
                         
                         <hr>
@@ -28,10 +29,10 @@ function renderHomePage() {
                             <div class="col-md-6">
                                 <div class="card mb-3 card-hover">
                                     <div class="card-body">
-                                        <h5 class="card-title">View Items</h5>
-                                        <p class="card-text">Browse and manage your items</p>
+                                        <h5 class="card-title">View Questions</h5>
+                                        <p class="card-text">Browse already asked questions</p>
                                         <button class="btn btn-primary" data-action="view-items">
-                                            Go to Items
+                                            Go to Questions
                                         </button>
                                     </div>
                                 </div>
@@ -40,10 +41,10 @@ function renderHomePage() {
                             <div class="col-md-6">
                                 <div class="card mb-3 card-hover">
                                     <div class="card-body">
-                                        <h5 class="card-title">Create New Item</h5>
-                                        <p class="card-text">Add a new item to the system</p>
+                                        <h5 class="card-title">Create New Question</h5>
+                                        <p class="card-text">Question not on the list? Add it!</p>
                                         <button class="btn btn-success" data-action="create-item">
-                                            Create Item
+                                            Ask Question
                                         </button>
                                     </div>
                                 </div>

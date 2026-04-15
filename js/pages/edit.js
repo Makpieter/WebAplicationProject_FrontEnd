@@ -14,7 +14,7 @@ function renderEditPage(id) {
     // Set initial page structure
     appContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>${isCreateMode ? 'Create New Item' : 'Edit Item'}</h2>
+            <h2>${isCreateMode ? 'Ask New Question' : 'Edit Question'}</h2>
             <button class="btn btn-secondary" id="back-btn">
                 <i class="bi bi-arrow-left"></i> Back
             </button>
@@ -26,7 +26,7 @@ function renderEditPage(id) {
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p>Loading item data...</p>
+                    <p>Loading question...</p>
                 </div>
             `}
         </div>
@@ -63,7 +63,7 @@ function loadItemForEdit(id) {
                     <h4 class="alert-heading">Error Loading Item</h4>
                     <p>${error.message}</p>
                     <hr>
-                    <p class="mb-0">The item may not exist or there could be a connection issue.</p>
+                    <p class="mb-0">The question may not exist or there could be a connection issue.</p>
                     <button class="btn btn-primary mt-3" id="retry-load-btn">
                         Retry
                     </button>
@@ -88,11 +88,11 @@ function renderItemForm(item = null) {
     // Define form fields
     const fields = [
         {
-            id: 'name',
-            name: 'name',
-            label: 'Name',
+            id: 'title',
+            name: 'title',
+            label: 'Title',
             type: 'text',
-            placeholder: 'Enter item name',
+            placeholder: 'Enter short version of your question here',
             required: true,
             invalidFeedback: 'Name is required'
         },
@@ -101,7 +101,8 @@ function renderItemForm(item = null) {
             name: 'description',
             label: 'Description',
             type: 'textarea',
-            placeholder: 'Enter item description',
+            required: true,
+            placeholder: 'Enter the explanation of your problem',
             rows: 4
         },
         {
