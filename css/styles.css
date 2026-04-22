@@ -1,4 +1,75 @@
+/* ---------------------------------
+   GLOBAL COLOR VARIABLES
+----------------------------------- */
+:root {
+  /* TEXT */
+  --text-vlight: #e8f5e9;   /* very light / highlights */
+  --text-light: #a5d6a7;
+  --text-def: #c8e6c9;
+  --text-glow: #81c784;
+
+  /* SHADOW */
+  --shadow: #0a1a12;
+
+  /* BACKGROUNDS */
+  --bg-main: #264d3a;
+  --bg-darker: #0b1f16;
+  --bg-header: rgba(10, 30, 20, 0.9);
+  --bg-container: rgba(20, 50, 35, 0.9);
+
+  /* BUTTONS */
+  --button: #2e7d32;
+  --button-bright: #4caf50;
+  --button-hover: #388e3c;
+
+  /* AMBIENT GRADIENTS */
+  --ambient-grad-1: radial-gradient(
+    circle at 20% 30%,
+    rgba(129,199,132,0.08),
+    transparent 40%
+  );
+  --ambient-grad-2: radial-gradient(
+    circle at 80% 70%,
+    rgba(165,214,167,0.06),
+    transparent 45%
+  );
+}
+
 /* Main stylesheet for the Web Application Starter */
+
+body {
+    margin: 0;
+    font-family: "Georgia", serif;
+    background: radial-gradient(circle at top, var(--bg-main), var(--bg-darker));
+    color: var(--text-vlight);
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("https://www.transparenttextures.com/patterns/foggy-birds.png");
+    opacity: 0.15;
+    animation: fogMove 60s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes fogMove {
+    from { background-position: 0 0; }
+    to { background-position: 1000px 0; }
+}
+
+/* Card */
+.card {
+    background-color: var(--bg-darker);
+}
+footer {
+    background-color: var(--bg-header);
+}
+nav {
+    background-color: var(--bg-header);
+}
 
 /* Custom styles beyond Bootstrap defaults */
 
