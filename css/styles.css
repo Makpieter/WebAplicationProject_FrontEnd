@@ -21,6 +21,9 @@
   --button: #2e7d32;
   --button-bright: #4caf50;
   --button-hover: #388e3c;
+  --button-primary: #2E3A63;
+  --button-primary-hover: #1D2A57;
+  --button-success: #468245;
 
   /* AMBIENT GRADIENTS */
   --ambient-grad-1: radial-gradient(
@@ -69,6 +72,19 @@ footer {
 }
 nav {
     background-color: var(--bg-header);
+}
+.btn-primary {
+    background-color: var(--button-primary);
+    /*color: var(--bg-header);*/
+    border-color: var(--button-primary);
+}
+.btn-primary:hover {
+    background-color: var(--button-primary-hover);
+    border-color: var(--button-primary-hover);
+}
+.btn-success {
+    background-color: var(--button-success);
+    border-color: var(--button-success);
 }
 
 /* Custom styles beyond Bootstrap defaults */
