@@ -2,6 +2,13 @@
  * Main application script
  * Handles routing and application initialization
  */
+const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+if (!isLoggedIn) {
+    navigateTo("login");
+} else {
+    navigateTo("home");
+}
 
 // Application state
 const appState = {
@@ -46,6 +53,9 @@ function renderCurrentRoute() {
 
     // Render content based on route
     switch (appState.currentRoute) {
+        case 'login':
+            renderLoginPage();
+            break;
         case 'home':
             renderHomePage();
             break;
@@ -112,7 +122,7 @@ function confirmAction(message) {
         return result.isConfirmed;
     });
 }
-
+document.getElementById("logoutBtn").addEventListener("click", () => { localStorage.removeItem("isLoggedIn"); navigateTo("login"); });
 /**
  * Initialize the application
  */
