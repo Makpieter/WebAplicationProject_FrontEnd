@@ -4,11 +4,11 @@
  */
 const isLoggedIn = localStorage.getItem("isLoggedIn");
 
-if (!isLoggedIn) {
-    navigateTo("login");
-} else {
-    navigateTo("home");
-}
+//if (!isLoggedIn) {
+   // navigateTo("login");
+//} else {
+ //   navigateTo("home");
+//}
 
 // Application state
 const appState = {
