@@ -2,13 +2,6 @@
  * Main application script
  * Handles routing and application initialization
  */
-const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-//if (!isLoggedIn) {
-   // navigateTo("login");
-//} else {
- //   navigateTo("home");
-//}
 
 // Application state
 const appState = {
@@ -18,6 +11,17 @@ const appState = {
 
 // DOM elements
 const appContainer = document.getElementById('app-container');
+
+/**
+ * Show or hide the logout button depending on login state
+ */
+function updateLogoutButton() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (!logoutBtn) return;
+
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    logoutBtn.style.display = isLoggedIn ? "inline-block" : "none";
+}
 
 /**
  * Simple router implementation
@@ -42,6 +46,13 @@ function navigateTo(route, params = {}) {
  * Renders the current route content
  */
 function renderCurrentRoute() {
+    // Redirect to login if not authenticated (skip for the login route itself)
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn && appState.currentRoute !== 'login') {
+        appState.currentRoute = 'login';
+        appState.params = {};
+    }
+
     // Show loading indicator
     appContainer.innerHTML = `
         <div class="text-center">
@@ -122,11 +133,24 @@ function confirmAction(message) {
         return result.isConfirmed;
     });
 }
-document.getElementById("logoutBtn").addEventListener("click", () => { localStorage.removeItem("isLoggedIn"); navigateTo("login"); });
+
 /**
  * Initialize the application
  */
 function initApp() {
+    // Set up logout button (safe to do here - DOM is ready)
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("isLoggedIn");
+            updateLogoutButton();
+            navigateTo("login");
+        });
+    }
+
+    // Show/hide logout button based on current auth state
+    updateLogoutButton();
+
     // Set up navigation event listeners
     document.querySelectorAll('[data-route]').forEach(element => {
         element.addEventListener('click', (e) => {
@@ -136,9 +160,17 @@ function initApp() {
         });
     });
 
-    // Initial route render
-    renderCurrentRoute();
+    // Initial route: go to login if not authenticated, otherwise home
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+        navigateTo("login");
+    } else {
+        navigateTo("home");
+    }
 }
+
+// Initialize the app when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', initApp);
 
 // Initialize the app when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', initApp);
