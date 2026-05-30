@@ -7,16 +7,16 @@
 const API_CONFIG = {
     baseUrl: 'http://localhost:8765/api',
     endpoints: {
-        items: '/items'
-        admin-actions: '/admin-actions'
-        answers: '/answers'
-        bookmarks: '/bookmarks'
-        categories: '/categories'
-        comments: '/comments'
-        moderator-actions: '/moderator-actions'
-        questions: '/questions'
-        reports: '/reports'
-        tags: '/tags'
+        items: '/items',
+        'admin-actions': '/admin-actions',
+        answers: '/answers',
+        bookmarks: '/bookmarks',
+        categories: '/categories',
+        comments: '/comments',
+        'moderator-actions': '/moderator-actions',
+        questions: '/questions',
+        reports: '/reports',
+        tags: '/tags',
         users: '/users'
     }
 };

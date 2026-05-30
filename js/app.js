@@ -46,10 +46,11 @@ function navigateTo(route, params = {}) {
  * Renders the current route content
  */
 function renderCurrentRoute() {
-    // Redirect to login if not authenticated (skip for the login route itself)
+    // Redirect to landing if not authenticated (allow landing, login, register through)
     const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn && appState.currentRoute !== 'login') {
-        appState.currentRoute = 'login';
+    const publicRoutes = ['landing', 'login', 'register'];
+    if (!isLoggedIn && !publicRoutes.includes(appState.currentRoute)) {
+        appState.currentRoute = 'landing';
         appState.params = {};
     }
 
@@ -64,8 +65,14 @@ function renderCurrentRoute() {
 
     // Render content based on route
     switch (appState.currentRoute) {
+        case 'landing':
+            renderLandingPage();
+            break;
         case 'login':
             renderLoginPage();
+            break;
+        case 'register':
+            renderRegisterPage();
             break;
         case 'home':
             renderHomePage();
@@ -160,17 +167,14 @@ function initApp() {
         });
     });
 
-    // Initial route: go to login if not authenticated, otherwise home
+    // Initial route: go to landing if not authenticated, otherwise home
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
-        navigateTo("login");
+        navigateTo("landing");
     } else {
         navigateTo("home");
     }
 }
-
-// Initialize the app when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', initApp);
 
 // Initialize the app when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', initApp);
