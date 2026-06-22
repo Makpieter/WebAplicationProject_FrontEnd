@@ -166,5 +166,54 @@ const ApiService = {
      */
     deleteItem: function(id) {
         return this.delete(`${API_CONFIG.endpoints.items}/${id}`);
+    },
+
+    /**
+     * Get all tags
+     * @returns {Promise} - Promise that resolves with all tags
+     */
+    getAllTags: function() {
+        return this.get(API_CONFIG.endpoints.tags);
+    },
+
+    /**
+     * Get all questions
+     * @returns {Promise} - Promise that resolves with all questions
+     */
+    getAllQuestions: function() {
+        return this.get(API_CONFIG.endpoints.questions);
+    },
+
+    /**
+     * Create a new question
+     * @param {Object} question - { title, description, tagIds, authorId, status, ... }
+     * @returns {Promise} - Promise that resolves with the created question (including its id)
+     */
+    createQuestion: function(question) {
+        return this.post(API_CONFIG.endpoints.questions, question);
+    },
+
+    /**
+     * Get a question by ID
+     * NOTE: the backend does not currently expose GET /api/questions/{id}.
+     * This will fail with a 404/405 until that endpoint is added.
+     * @param {number} id - Question ID
+     * @returns {Promise} - Promise that resolves with question data
+     */
+    getQuestionById: function(id) {
+        return this.get(`${API_CONFIG.endpoints.questions}/${id}`);
+    },
+
+    /**
+     * Update an existing question
+     * NOTE: the backend does not currently expose PUT /api/questions/{id}
+     * (no method in QuestionController/QuestionsService). This will fail
+     * until that endpoint + service method are added.
+     * @param {number} id - Question ID
+     * @param {Object} question - Updated question data
+     * @returns {Promise} - Promise that resolves with updated question
+     */
+    updateQuestion: function(id, question) {
+        return this.put(`${API_CONFIG.endpoints.questions}/${id}`, question);
     }
 };

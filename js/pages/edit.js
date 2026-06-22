@@ -1,11 +1,11 @@
 /**
  * Edit Page Controller
- * Handles creating a new item or editing an existing one
+ * Handles creating a new question or editing an existing one
  */
 
 /**
  * Render the edit page
- * @param {number} id - Item ID to edit (null for create mode)
+ * @param {number} id - Question ID to edit (null for create mode)
  */
 function renderEditPage(id) {
     const appContainer = document.getElementById('app-container');
@@ -38,29 +38,45 @@ function renderEditPage(id) {
     });
 
     if (isCreateMode) {
-        // Create mode - render empty form
-        renderItemForm();
+        // Create mode - load available tags, then render empty form
+        loadTagsAndRenderForm(null);
     } else {
-        // Edit mode - load existing item first
+        // Edit mode - load question and tags in parallel
         loadItemForEdit(id);
     }
 }
 
 /**
- * Load item data for editing
- * @param {number} id - Item ID to load
+ * Load the list of available tags, then render the form
+ * @param {Object|null} item - Question data (null in create mode)
+ */
+function loadTagsAndRenderForm(item) {
+    ApiService.getAllTags()
+        .then(tags => {
+            renderItemForm(item, tags);
+        })
+        .catch(error => {
+            console.error('Failed to load tags:', error);
+            // Don't block question creation just because tags failed to load
+            renderItemForm(item, []);
+        });
+}
+
+/**
+ * Load question data for editing
+ * @param {number} id - Question ID to load
  */
 function loadItemForEdit(id) {
     const formContainer = document.getElementById('edit-form-container');
 
-    ApiService.getItemById(id)
+    ApiService.getQuestionById(id)
         .then(item => {
-            renderItemForm(item);
+            loadTagsAndRenderForm(item);
         })
         .catch(error => {
             formContainer.innerHTML = `
                 <div class="alert alert-danger" role="alert">
-                    <h4 class="alert-heading">Error Loading Item</h4>
+                    <h4 class="alert-heading">Error Loading Question</h4>
                     <p>${error.message}</p>
                     <hr>
                     <p class="mb-0">The question may not exist or there could be a connection issue.</p>
@@ -70,7 +86,6 @@ function loadItemForEdit(id) {
                 </div>
             `;
 
-            // Add retry button event listener
             document.getElementById('retry-load-btn').addEventListener('click', () => {
                 loadItemForEdit(id);
             });
@@ -78,23 +93,23 @@ function loadItemForEdit(id) {
 }
 
 /**
- * Render the item form
- * @param {Object} item - Item data for edit mode (null for create mode)
+ * Render the question form
+ * @param {Object|null} item - Question data (null in create mode)
+ * @param {Object[]} tags   - All available tags from the backend
  */
-function renderItemForm(item = null) {
+function renderItemForm(item = null, tags = []) {
     const formContainer = document.getElementById('edit-form-container');
     const isCreateMode = !item;
 
-    // Define form fields
     const fields = [
         {
             id: 'title',
             name: 'title',
             label: 'Title',
             type: 'text',
-            placeholder: 'Enter short version of your question here',
+            placeholder: 'Enter a short version of your question',
             required: true,
-            invalidFeedback: 'Name is required'
+            invalidFeedback: 'Title is required'
         },
         {
             id: 'description',
@@ -102,34 +117,37 @@ function renderItemForm(item = null) {
             label: 'Description',
             type: 'textarea',
             required: true,
-            placeholder: 'Enter the explanation of your problem',
+            placeholder: 'Describe your problem in detail',
             rows: 4
         },
         {
             id: 'tags',
-            name: 'tags',
+            name: 'tagIds',
             label: 'Tags',
-            type: 'checkbox',
-            checkboxLabel: 'Tags'
+            type: 'checkbox-group',
+            options: tags.map(tag => ({ value: tag.id, label: tag.name })),
+            emptyText: 'No tags available yet.'
         }
-        // Add more fields specific to your entity
     ];
 
-    // Create the form with initial values
+    // In edit mode, the backend returns item.tags as Tag objects; translate to ids
+    // so the checkbox-group can pre-check the right boxes.
+    const initialValues = item
+        ? { ...item, tagIds: (item.tags || []).map(t => t.id) }
+        : { tagIds: [] };
+
     const form = createForm(fields, {
         id: 'item-form',
-        submitLabel: isCreateMode ? 'Create' : 'Save Changes',
-        initialValues: item || { active: true },
+        submitLabel: isCreateMode ? 'Post Question' : 'Save Changes',
+        initialValues: initialValues,
         onSubmit: (formData) => handleFormSubmit(formData, isCreateMode ? null : item.id),
         onCancel: () => {
             navigateTo(isCreateMode ? 'list' : 'details', isCreateMode ? {} : { id: item.id });
         }
     });
 
-    // Clear loading indicator and show form
     formContainer.innerHTML = '';
 
-    // Create a card to contain the form
     const formCard = document.createElement('div');
     formCard.className = 'card';
 
@@ -143,41 +161,42 @@ function renderItemForm(item = null) {
 
 /**
  * Handle form submission
- * @param {Object} formData - Form data
- * @param {number} id - Item ID for edit mode (null for create mode)
+ * @param {Object} formData - Collected form values
+ * @param {number|null} id  - Question ID (null in create mode)
  */
 function handleFormSubmit(formData, id) {
     const isCreateMode = !id;
 
-    // Process form data if needed
-    // For example, convert string values to appropriate types
-    if (formData.active === 'on') {
-        formData.active = true;
-    }
+    // Build the payload that QuestionDTO expects
+    const questionPayload = {
+        title: formData.title,
+        description: formData.description,
+        tagIds: Array.isArray(formData.tagIds) ? formData.tagIds : [],
+        status: 'OPEN',
+        // TODO: replace with the actual logged-in user's id once auth is wired up
+        authorId: 1
+    };
 
-    // Show loading state
+    // Show loading state on the submit button
     const submitButton = document.querySelector('#item-form button[type="submit"]');
     const originalButtonText = submitButton.textContent;
     submitButton.disabled = true;
     submitButton.innerHTML = `
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        ${isCreateMode ? 'Creating...' : 'Saving...'}
+        ${isCreateMode ? 'Posting...' : 'Saving...'}
     `;
 
-    // API call based on mode
     const apiPromise = isCreateMode
-        ? ApiService.createItem(formData)
-        : ApiService.updateItem(id, formData);
+        ? ApiService.createQuestion(questionPayload)
+        : ApiService.updateQuestion(id, questionPayload);
 
     apiPromise
-        .then(savedItem => {
-            showSuccess(`Item ${isCreateMode ? 'created' : 'updated'} successfully`);
-            navigateTo('details', { id: savedItem.id });
+        .then(savedQuestion => {
+            showSuccess(`Question ${isCreateMode ? 'posted' : 'updated'} successfully`);
+            navigateTo('details', { id: savedQuestion.id });
         })
         .catch(error => {
-            showError(`Failed to ${isCreateMode ? 'create' : 'update'} item: ${error.message}`);
-
-            // Reset button state
+            showError(`Failed to ${isCreateMode ? 'post' : 'update'} question: ${error.message}`);
             submitButton.disabled = false;
             submitButton.textContent = originalButtonText;
         });

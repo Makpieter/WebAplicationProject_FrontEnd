@@ -82,6 +82,55 @@ function createForm(fields, options) {
                 formGroup.appendChild(checkboxDiv);
                 break;
 
+            case 'checkbox-group': {
+                // Renders one checkbox per option (e.g. tags). Zero, one, or many
+                // can be checked. Collected as an array of values on submit.
+                const groupDiv = document.createElement('div');
+                groupDiv.id = field.id;
+                groupDiv.className = 'checkbox-group';
+
+                const options = field.options || [];
+                const initial = formOptions.initialValues[field.name || field.id];
+                // initial may be an array of raw values (ids) or of objects with an id
+                const initialValues = Array.isArray(initial)
+                    ? initial.map(v => (v && typeof v === 'object') ? v.id : v).map(String)
+                    : [];
+
+                if (options.length === 0 && field.emptyText) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'text-muted small';
+                    emptyMsg.textContent = field.emptyText;
+                    groupDiv.appendChild(emptyMsg);
+                }
+
+                options.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'form-check form-check-inline';
+
+                    const optionCheckbox = document.createElement('input');
+                    optionCheckbox.type = 'checkbox';
+                    optionCheckbox.className = 'form-check-input';
+                    optionCheckbox.id = `${field.id}-${option.value}`;
+                    optionCheckbox.name = field.name || field.id;
+                    optionCheckbox.value = option.value;
+                    optionCheckbox.checked = initialValues.includes(String(option.value));
+
+                    const optionLabel = document.createElement('label');
+                    optionLabel.className = 'form-check-label';
+                    optionLabel.htmlFor = optionCheckbox.id;
+                    optionLabel.textContent = option.label;
+
+                    optionDiv.appendChild(optionCheckbox);
+                    optionDiv.appendChild(optionLabel);
+                    groupDiv.appendChild(optionDiv);
+                });
+
+                formGroup.appendChild(groupDiv);
+                // No single inputElement for this type - skip the common-attribute block below.
+                inputElement = null;
+                break;
+            }
+
             default:
                 inputElement = document.createElement('input');
                 inputElement.type = field.type || 'text';
@@ -186,6 +235,15 @@ function createForm(fields, options) {
 
         fields.forEach(field => {
             const fieldName = field.name || field.id;
+
+            if (field.type === 'checkbox-group') {
+                const checkedBoxes = document.querySelectorAll(
+                    `#${field.id} input[type="checkbox"]:checked`
+                );
+                formData[fieldName] = Array.from(checkedBoxes).map(cb => Number(cb.value));
+                return;
+            }
+
             const element = document.getElementById(field.id);
 
             if (element) {
