@@ -150,7 +150,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-journal-text"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">Wszystkich</div>
+                        <div class="text-white small">Wszystkich</div>
                         <div class="fw-bold">${totalQuestions}</div>
                     </div>
                 </div>
@@ -161,7 +161,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-check2-circle"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">Rozwiązane</div>
+                        <div class="text-white small">Rozwiązane</div>
                         <div class="fw-bold">${resolvedQuestions}</div>
                     </div>
                 </div>
@@ -172,7 +172,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-hourglass-split"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">Otwarte</div>
+                        <div class="text-white small">Otwarte</div>
                         <div class="fw-bold">${openQuestions}</div>
                     </div>
                 </div>
@@ -183,7 +183,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-tags"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">Otagowane</div>
+                        <div class="text-white small">Otagowane</div>
                         <div class="fw-bold">${questionsWithTags}</div>
                     </div>
                 </div>
@@ -224,7 +224,7 @@ function renderTags(questions) {
                     <div class="card card-hover bg-light">
                         <div class="card-body py-2">
                             <h6 class="mb-0 d-flex justify-content-between align-items-center">
-                                <span><i class="bi bi-hash text-muted"></i>${tagName}</span>
+                                <span class="text-muted"><i class="bi bi-hash text-muted"></i>${tagName}</span>
                                 <span class="badge bg-secondary rounded-pill">${count}</span>
                             </h6>
                         </div>
@@ -255,7 +255,7 @@ function renderQuestionsTable(questions) {
             field: 'title',
             title: 'Temat pytania',
             render: (value) => {
-                return `<span class="text-primary fw-bold" style="cursor:pointer;">${value}</span>`;
+                return `<span class="text-light fw-bold" style="cursor:pointer;">${value}</span>`;
             }
         },
         {
@@ -263,7 +263,7 @@ function renderQuestionsTable(questions) {
             title: 'Autor / Karczmarz',
             width: '15%',
             render: (author) => {
-                if (!author) return '<span class="text-muted">Anonim</span>';
+                if (!author) return '<span class="text-light">Anonim</span>';
                 const badgeColor = author.role === 'MODERATOR' ? 'bg-danger' : 'bg-dark';
                 return `<div><strong>${author.username}</strong> <br/><span class="badge ${badgeColor} xsmall">${author.role}</span></div>`;
             }
@@ -273,8 +273,8 @@ function renderQuestionsTable(questions) {
             title: 'Tagi dyskusji',
             width: '20%',
             render: (tags) => {
-                if (!tags || tags.length === 0) return '<span class="text-muted">-</span>';
-                return tags.map(t => `<span class="badge bg-outline-secondary border text-dark me-1 mb-1"><i class="bi bi-tag-fill text-muted me-1"></i>${t.name}</span>`).join('');
+                if (!tags || tags.length === 0) return '<span class="text-light">-</span>';
+                return tags.map(t => `<span class="badge bg-outline-secondary border text-light me-1 mb-1"><i class="bi bi-tag-fill text-light me-1"></i>${t.name}</span>`).join('');
             }
         },
         {
