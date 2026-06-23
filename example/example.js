@@ -389,73 +389,105 @@ function showQuestionDetailsModal(id) {
 
 /**
  * Show modal to add a new forum question
- */
-function showAddQuestionModal() {
-    const fields = [
-        {
-            id: 'title',
-            name: 'title',
-            label: 'Question subject (D&D)',
-            type: 'text',
-            placeholder: 'e.g. How does the Fireball spell work in a tight corridor?',
-            required: true
-        },
-        {
-            id: 'description',
-            name: 'description',
-            label: 'Question text (Expand description)',
-            type: 'textarea',
-            placeholder: 'Describe your issue with the rules, mechanics, or plot of the session...',
-            rows: 4,
-            required: true
-        },
-        {
-            id: 'status',
-            name: 'status',
-            label: 'Initial status',
-            type: 'select',
-            required: true,
-            options: [
-                { value: 'OPEN', label: 'Open (Waiting for responses)' },
-                { value: 'RESOLVED', label: 'Resolved (Solved)' }
-            ]
-        }
-    ];
+ */ {
+    // 1. Najpierw pytamy API o wszystkie dostępne tagi
+    ApiService.getAllTags()
+        .then(tags => {
+            // Gdy tagi się załadują, budujemy i pokazujemy modal
+            buildAndShowModal(tags);
+        })
+        .catch(error => {
+            console.error('Failed to load tags:', error);
+            // Jeśli baza tagów padnie, nie blokujemy użytkownika – otwieramy z pustą listą []
+            buildAndShowModal([]);
+        });
 
-    const form = createForm(fields, {
-        id: 'add-question-form',
-        submitLabel: 'Post on the Forum',
-        initialValues: {
-            status: 'OPEN'
-        },
-        onSubmit: (formData) => {
-            // Doklejamy sztucznego autora i puste tagi na potrzeby makiety sieciowej
-            formData.author = { id: 1, username: "ZalogowanyBohater", role: "USER" };
-            formData.tags = [{ id: 1, name: "Zasady Ogólne" }];
-            formData.acceptedAnswer = null;
+    // 2. Przenosimy logikę budowania modala do wewnętrznej funkcji pomocniczej
+    function buildAndShowModal(tagsList) {
+		const fields = [
+			{
+				id: 'title',
+				name: 'title',
+				label: 'Question subject (D&D)',
+				type: 'text',
+				placeholder: 'e.g. How does the Fireball spell work in a tight corridor?',
+				required: true
+			},
+			{
+				id: 'description',
+				name: 'description',
+				label: 'Question text (Expand description)',
+				type: 'textarea',
+				placeholder: 'Describe your issue with the rules, mechanics, or plot of the session...',
+				rows: 4,
+				required: true
+			},
+			{
+				id: 'status',
+				name: 'status',
+				label: 'Initial status',
+				type: 'select',
+				required: true,
+				options: [
+					{ value: 'OPEN', label: 'Open (Waiting for responses)' },
+					{ value: 'RESOLVED', label: 'Resolved (Solved)' }
+				]
+			},
+			{ 
+				id: 'tags', 
+				name: 'tagIds', // Zmienione z tagids na tagIds (wielka litera 'I'), żeby pasowało do bazy
+				label: 'Tags', 
+				type: 'checkbox-group', 
+				// Mapujemy tagi przekazane w argumencie funkcji
+				options: tags.map(tag => ({ value: tag.id, label: tag.name })), 
+				emptyText: 'No tags available yet.' 
+			}
+		];
 
-            modal.hide();
+		const form = createForm(fields, {
+			id: 'add-question-form',
+			submitLabel: 'Post on the Forum',
+			// Definiujemy startowy status oraz pustą tablicę zaznaczonych tagów
+			initialValues: {
+				status: 'OPEN',
+				tagIds: []
+			},
+			onSubmit: (formData) => {
+				// Doklejamy sztucznego autora
+				formData.author = { id: 1, username: "ZalogowanyBohater", role: "USER" };
+				formData.acceptedAnswer = null;
 
-            // Wywołujemy mockowe zapisanie do tablicy
-            MockApiService.createItem(formData)
-                .then(() => {
-                    showSuccess('The question has been successfully added to the inn database!');
-                    loadExampleData();
-                })
-                .catch(error => {
-                    showError(`Failed to add entry: ${error.message}`);
-                });
-        }
-    });
+				// MAPOWANIE TAGÓW: Przekształcamy tablicę wybranych ID (np.) 
+				// na pełne obiekty tagów, które rozumie Twój MockApiService
+				const selectedIds = formData.tagIds || [];
+				formData.tags = tags.filter(tag => selectedIds.includes(tag.id));
+				
+				// Usuwamy surowe tagIds z obiektu wysyłki, jeśli backend tego nie potrzebuje
+				delete formData.tagIds;
 
-    const modal = createModal({
-        title: 'Ask new question to the RPG community',
-        content: form,
-        size: 'large',
-        footer: false
-    });
+				modal.hide();
 
-    modal.show();
+				// Wywołujemy mockowe zapisanie do tablicy
+				MockApiService.createItem(formData)
+					.then(() => {
+						showSuccess('The question has been successfully added to the inn database!');
+						loadExampleData();
+					})
+					.catch(error => {
+						showError(`Failed to add entry: ${error.message}`);
+					});
+			}
+		});
+
+		const modal = createModal({
+			title: 'Ask new question to the RPG community',
+			content: form,
+			size: 'large',
+			footer: false
+		});
+
+        modal.show();
+    }
 }
 
 /**
