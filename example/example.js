@@ -4,10 +4,10 @@
  */
 
 /**
- * Render the main forum page
+ * Render the main login page
  */
 const loggedInUser = {
-    username: localStorage.getItem("loggedInUser") || "Gość",
+    username: localStorage.getItem("loggedInUser") || "Guest",
     role: localStorage.getItem("userRole") || "USER"
 };
 /**
@@ -124,7 +124,7 @@ function loadExampleData() {
             renderQuestionsTable(questions);
         })
         .catch(error => {
-            showError(`Błąd ładowania danych: ${error.message}`);
+            showError(`Loading data error: ${error.message}`);
         });
 }
 
@@ -289,7 +289,6 @@ function renderQuestionsTable(questions) {
         }
     ];
 
-    // Korzystamy z wbudowanego szablonu generowania tabeli w Twoim projekcie
     const table = createTable(questions, {
         columns: columns,
         onView: (id) => {
@@ -326,7 +325,7 @@ function showQuestionDetailsModal(id) {
                 acceptedAnswerHTML = `
                     <div class="card border-success mt-3 bg-light">
                         <div class="card-header bg-success text-white py-1 d-flex justify-content-between align-items-center">
-                            <span><i class="bi bi-patch-check-fill me-1"></i> Zaakceptowana Rozwiązująca Odpowiedź</span>
+                            <span><i class="bi bi-patch-check-fill me-1"></i> Accepted Resolving Answer</span>
                             <small>Autor: <strong>${question.acceptedAnswer.author.username}</strong></small>
                         </div>
                         <div class="card-body py-2">
@@ -351,7 +350,7 @@ function showQuestionDetailsModal(id) {
                             <strong>Post status:</strong> ${question.status === 'RESOLVED' ? '<span class="badge bg-success">Solved</span>' : '<span class="badge bg-warning text-dark">Open</span>'}
                         </div>
                         <div class="mb-2">
-                            <strong>Post author:</strong> <code>${question.author ? question.author.username : 'Nieznany'}</code>
+                            <strong>Post author:</strong> <code>${question.author ? question.author.username : 'Unknown'}</code>
                         </div>
                         <div class="mb-2">
                             <strong>Created:</strong> <small class="text-muted">${formatDate ? formatDate(question.createdAt) : question.createdAt}</small>
@@ -435,10 +434,9 @@ function showQuestionDetailsModal(id) {
 			},
 			{ 
 				id: 'tags', 
-				name: 'tagIds', // Zmienione z tagids na tagIds (wielka litera 'I'), żeby pasowało do bazy
+				name: 'tagIds',
 				label: 'Tags', 
 				type: 'checkbox-group', 
-				// Mapujemy tagi przekazane w argumencie funkcji
 				options: tags.map(tag => ({ value: tag.id, label: tag.name })), 
 				emptyText: 'No tags available yet.' 
 			}
