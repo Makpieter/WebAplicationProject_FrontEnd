@@ -64,37 +64,66 @@ function renderCurrentRoute() {
     `;
 
     // Render content based on route
-    switch (appState.currentRoute) {
-        case 'landing':
-            renderLandingPage();
-            break;
-        case 'login':
-            renderLoginPage();
-            break;
-        case 'register':
-            renderRegisterPage();
-            break;
-        case 'home':
-            renderHomePage();
-            break;
-        case 'list':
-            renderListPage();
-            break;
-        case 'details':
-            renderDetailsPage(appState.params.id);
-            break;
-        case 'edit':
-            renderEditPage(appState.params.id);
-            break;
-        case 'create':
-            renderEditPage();
-            break;
-        case 'example':
-            renderExamplePage();
-            break;
-        default:
-            renderNotFoundPage();
+    try {
+        switch (appState.currentRoute) {
+            case 'landing':
+                renderLandingPage();
+                break;
+            case 'login':
+                renderLoginPage();
+                break;
+            case 'register':
+                renderRegisterPage();
+                break;
+            case 'home':
+                renderHomePage();
+                break;
+            case 'list':
+                renderListPage();
+                break;
+            case 'details':
+                renderDetailsPage(appState.params.id);
+                break;
+            case 'edit':
+                renderEditPage(appState.params.id);
+                break;
+            case 'create':
+                renderEditPage();
+                break;
+            case 'example':
+                if (typeof renderExamplePage === 'function') {
+                    renderExamplePage();
+                } else {
+                    renderNotFoundPage();
+                }
+                break;
+            default:
+                renderNotFoundPage();
+        }
+    } catch (err) {
+        console.error('Error rendering route:', appState.currentRoute, err);
+        appContainer.innerHTML = `
+            <div class="alert alert-danger m-4">
+                <strong>Render error:</strong> ${err.message}. Check the browser console for details.
+            </div>
+        `;
     }
+}
+
+/**
+ * Fallback page for unknown routes
+ */
+function renderNotFoundPage() {
+    const appContainer = document.getElementById('app-container');
+    appContainer.innerHTML = `
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6 text-center">
+                <h2>404 — Page Not Found</h2>
+                <p class="text-muted">The page you're looking for doesn't exist.</p>
+                <button class="btn btn-primary" onclick="navigateTo('home')">Go Home</button>
+            </div>
+        </div>
+    `;
 }
 
 /**
@@ -149,9 +178,19 @@ function initApp() {
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("isLoggedIn");
-            updateLogoutButton();
-            navigateTo("login");
+            // NOWOŚĆ: Wykorzystujemy Twoją funkcję confirmAction, aby zapytać o potwierdzenie
+            confirmAction("Czy na pewno chcesz opuścić karczmę i się wylogować?")
+                .then(confirmed => {
+                    if (confirmed) {
+                        // Jeśli użytkownik kliknął "Yes" (Tak):
+                        localStorage.removeItem("isLoggedIn");
+                        localStorage.removeItem("loggedInUser"); // bezpiecznie czyścimy też nick
+                        localStorage.removeItem("userRole");     // oraz fejkowe role
+                        updateLogoutButton();
+                        navigateTo("login");
+                    }
+                    // Jeśli kliknął "No" (Anuluj), funkcja nic nie zrobi i użytkownik zostaje na stronie
+                });
         });
     }
 
@@ -174,6 +213,27 @@ function initApp() {
     } else {
         navigateTo("home");
     }
+}
+
+    // Show/hide logout button based on current auth state
+    updateLogoutButton();
+
+    // Set up navigation event listeners
+    document.querySelectorAll('[data-route]').forEach(element => {
+        element.addEventListener('click', (e) => {
+            e.preventDefault();
+            const route = e.target.getAttribute('data-route');
+            navigateTo(route);
+        });
+    });
+
+    // Initial route: go to landing if not authenticated, otherwise home
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+        navigateTo("landing");
+    } else {
+        navigateTo("home");
+
 }
 
 // Initialize the app when the DOM is fully loaded
