@@ -8,63 +8,51 @@ const mockData = {
     items: [
         {
             id: 1,
-            name: "Laptop",
-            description: "High performance laptop with 16GB RAM and SSD storage",
-            price: 1299.99,
-            category: "Electronics",
-            inStock: true,
-            rating: 4.5,
-            createdDate: "2025-04-10T10:30:00Z",
-            lastUpdated: "2025-05-01T14:22:00Z",
-            active: true
+            title: "Jak obliczyć Klasę Pancerza (AC) dla Barbarzyńcy z wieloklasowością?",
+            description: "Mam postać Barbarzyńca 3 / Mnich 2. Czy cechy Obrony bez Pancerza (Unarmored Defense) z obu klas się sumują, czy muszę wybrać jedną?",
+            createdAt: "2026-06-20T10:30:00Z",
+            updatedAt: "2026-06-21T14:22:00Z",
+            status: "RESOLVED",
+            author: { id: 42, username: "MistrzMiecza99", role: "USER" },
+            tags: [
+                { id: 1, name: "Zasady" },
+                { id: 2, name: "Barbarzyńca" },
+                { id: 3, name: "Wieloklasowość" }
+            ],
+            acceptedAnswer: {
+                id: 101,
+                content: "Niestety nie sumują się. Zgodnie z Player's Handbook (str. 164), jeśli masz już cechę Unarmored Defense z jednej klasy, nie możesz jej zyskać z drugiej.",
+                author: { id: 7, username: "DungeonMaster_PL", role: "MODERATOR" }
+            }
         },
         {
             id: 2,
-            name: "Office Chair",
-            description: "Ergonomic office chair with lumbar support and adjustable height",
-            price: 249.99,
-            category: "Furniture",
-            inStock: true,
-            rating: 4.2,
-            createdDate: "2025-03-15T09:45:00Z",
-            lastUpdated: "2025-03-15T09:45:00Z",
-            active: true
+            title: "Najlepsze czary 1. poziomu dla Zaklinacza (Sorcerer)?",
+            description: "Zaczynam nową kampanię i mam ograniczoną liczbę znanych czarów. Co oprócz Taric (Shield) warto wziąć do przeżycia na 1. poziomie?",
+            createdAt: "2026-06-22T09:45:00Z",
+            updatedAt: "2026-06-22T09:45:00Z",
+            status: "OPEN",
+            author: { id: 13, username: "FireballEnjoyer", role: "USER" },
+            tags: [
+                { id: 4, name: "Zaklinacz" },
+                { id: 5, name: "Magia" },
+                { id: 6, name: "BudowaniePostaci" }
+            ],
+            acceptedAnswer: null
         },
         {
             id: 3,
-            name: "Coffee Maker",
-            description: "Automatic coffee maker with timer and multiple brewing options",
-            price: 89.99,
-            category: "Kitchen",
-            inStock: false,
-            rating: 3.8,
-            createdDate: "2025-02-20T11:15:00Z",
-            lastUpdated: "2025-04-22T16:10:00Z",
-            active: false
-        },
-        {
-            id: 4,
-            name: "Wireless Headphones",
-            description: "Noise-cancelling wireless headphones with 20-hour battery life",
-            price: 149.99,
-            category: "Electronics",
-            inStock: true,
-            rating: 4.7,
-            createdDate: "2025-04-05T13:20:00Z",
-            lastUpdated: "2025-04-05T13:20:00Z",
-            active: true
-        },
-        {
-            id: 5,
-            name: "Desk Lamp",
-            description: "Adjustable LED desk lamp with multiple brightness levels",
-            price: 39.99,
-            category: "Lighting",
-            inStock: true,
-            rating: 4.0,
-            createdDate: "2025-01-30T15:45:00Z",
-            lastUpdated: "2025-03-10T09:30:00Z",
-            active: true
+            title: "Problem z balansem Deck of Many Things – co robić?",
+            description: "Moi gracze na 5. poziomie znaleźli Talię Wielu Rzeczy i łotr wyciągnął kartę 'Rycerz' oraz 'Pustka'. Kampania mi się rozlatuje. Jak uratować fabułę?",
+            createdAt: "2026-06-23T15:00:00Z",
+            updatedAt: "2026-06-23T15:10:00Z",
+            status: "OPEN",
+            author: { id: 88, username: "SfrustrowanyDM", role: "USER" },
+            tags: [
+                { id: 7, name: "MistrzPodziemi" },
+                { id: 8, name: "PrzedmiotyMagiczne" }
+            ],
+            acceptedAnswer: null
         }
     ]
 };
@@ -138,19 +126,10 @@ const MockApiService = {
         try {
             simulateRandomError();
 
-            if (endpoint === '/items') {
-                // Create new item
-                const newItem = {
-                    ...data,
-                    id: Math.max(...mockData.items.map(item => item.id), 0) + 1,
-                    createdDate: new Date().toISOString(),
-                    lastUpdated: new Date().toISOString()
-                };
+            if (endpoint === '/questions') {
 
-                // Add to mock data
-                mockData.items.push(newItem);
 
-                return deepClone(newItem);
+                return deepClone(mockData.items);
             } else {
                 throw new Error(`Endpoint ${endpoint} not supported`);
             }

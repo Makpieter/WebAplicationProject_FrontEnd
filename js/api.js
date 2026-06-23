@@ -217,3 +217,4 @@ const ApiService = {
         return this.put(`${API_CONFIG.endpoints.questions}/${id}`, question);
     }
 };
+export default MockApiService;

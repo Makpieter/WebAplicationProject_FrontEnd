@@ -1,21 +1,21 @@
 /**
- * Example Page Controller
- * Demonstrates a custom implementation of a page using the components
+ * Forum Questions Page Controller
+ * Handles rendering the D&D Questions forum view using mocked data
  */
 
 /**
- * Render the example page
+ * Render the main forum page
  */
 function renderExamplePage() {
     const appContainer = document.getElementById('app-container');
 
-    // Set initial page structure
+    // Ustawienie struktury forum (Zamiast sklepu - widok pytań)
     appContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Product Catalog Example</h2>
+            <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Forum Pytań D&D</h2>
             <div>
-                <button class="btn btn-success" id="add-product-btn">
-                    <i class="bi bi-plus-circle"></i> Add New Product
+                <button class="btn btn-success" id="add-question-btn">
+                    <i class="bi bi-plus-circle"></i> Zadaj nowe pytanie
                 </button>
             </div>
         </div>
@@ -24,20 +24,20 @@ function renderExamplePage() {
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Statistics</h5>
+                        <h5 class="mb-0">Statystyki Forum</h5>
                     </div>
                     <div class="card-body">
-                        <div id="stats-container">Loading statistics...</div>
+                        <div id="stats-container">Ładowanie statystyk...</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">Product Categories</h5>
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Popularne Tagi</h5>
                     </div>
                     <div class="card-body">
-                        <div id="categories-container">Loading categories...</div>
+                        <div id="categories-container">Ładowanie tagów...</div>
                     </div>
                 </div>
             </div>
@@ -45,113 +45,103 @@ function renderExamplePage() {
         
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Products</h5>
+                <h5 class="mb-0">Wszystkie pytania społeczności</h5>
             </div>
             <div class="card-body">
                 <div id="products-table-container">
                     <div class="text-center py-5">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">Ładowanie...</span>
                         </div>
-                        <p>Loading products...</p>
+                        <p>Pobieranie wątków z bazy karczmy...</p>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="card">
-            <div class="card-header bg-warning">
-                <h5 class="mb-0">Product Ratings</h5>
-            </div>
-            <div class="card-body">
-                <div id="ratings-container">Loading ratings chart...</div>
-            </div>
-        </div>
     `;
 
-    // Add event listeners
-    document.getElementById('add-product-btn').addEventListener('click', () => {
-        showAddProductModal();
+    // Nasłuchiwanie przycisku dodawania pytania
+    document.getElementById('add-question-btn').addEventListener('click', () => {
+        showAddQuestionModal();
     });
 
-    // Load data
+    // Pobranie danych przy użyciu udawanej bazy (Mocka)
     loadExampleData();
 }
 
 /**
- * Load all example data
+ * Load all forum data
  */
 function loadExampleData() {
-    // Use the mock API service
+    // Wywołujemy pobieranie pytań (które teraz podstawiliśmy pod getAllItems() w api.js)
     MockApiService.getAllItems()
-        .then(items => {
-            renderStatistics(items);
-            renderCategories(items);
-            renderProductsTable(items);
-            renderRatingsChart(items);
+        .then(questions => {
+            renderStatistics(questions);
+            renderTags(questions);
+            renderQuestionsTable(questions);
         })
         .catch(error => {
-            showError(`Failed to load data: ${error.message}`);
+            showError(`Błąd ładowania danych: ${error.message}`);
         });
 }
 
 /**
- * Render statistics based on products data
- * @param {Object[]} items - Array of products
+ * Render forum statistics based on questions data
+ * @param {Object[]} questions - Array of forum questions
  */
-function renderStatistics(items) {
+function renderStatistics(questions) {
     const statsContainer = document.getElementById('stats-container');
 
-    // Calculate statistics
-    const totalProducts = items.length;
-    const inStockProducts = items.filter(item => item.inStock).length;
-    const activeProducts = items.filter(item => item.active).length;
-    const averagePrice = items.reduce((sum, item) => sum + item.price, 0) / totalProducts;
+    const totalQuestions = questions.length;
+    const resolvedQuestions = questions.filter(q => q.status === 'RESOLVED').length;
+    const openQuestions = questions.filter(q => q.status === 'OPEN').length;
 
-    // Render statistics
+    // Obliczamy ile pytań posiada przypisane tagi
+    const questionsWithTags = questions.filter(q => q.tags && q.tags.length > 0).length;
+
     statsContainer.innerHTML = `
         <div class="row">
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary text-white rounded p-2 me-2">
-                        <i class="bi bi-box-seam"></i>
+                        <i class="bi bi-journal-text"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">Total Products</div>
-                        <div class="fw-bold">${totalProducts}</div>
+                        <div class="text-muted small">Wszystkich</div>
+                        <div class="fw-bold">${totalQuestions}</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-success text-white rounded p-2 me-2">
-                        <i class="bi bi-check-circle"></i>
+                        <i class="bi bi-check2-circle"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">In Stock</div>
-                        <div class="fw-bold">${inStockProducts}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="bg-info text-white rounded p-2 me-2">
-                        <i class="bi bi-toggle-on"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted small">Active</div>
-                        <div class="fw-bold">${activeProducts}</div>
+                        <div class="text-muted small">Rozwiązane</div>
+                        <div class="fw-bold">${resolvedQuestions}</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-warning text-white rounded p-2 me-2">
-                        <i class="bi bi-currency-dollar"></i>
+                        <i class="bi bi-hourglass-split"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">Avg Price</div>
-                        <div class="fw-bold">$${averagePrice.toFixed(2)}</div>
+                        <div class="text-muted small">Otwarte</div>
+                        <div class="fw-bold">${openQuestions}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-info text-white rounded p-2 me-2">
+                        <i class="bi bi-tags"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Otagowane</div>
+                        <div class="fw-bold">${questionsWithTags}</div>
                     </div>
                 </div>
             </div>
@@ -160,55 +150,58 @@ function renderStatistics(items) {
 }
 
 /**
- * Render category information
- * @param {Object[]} items - Array of products
+ * Render tags information aggregated from questions
+ * @param {Object[]} questions - Array of forum questions
  */
-function renderCategories(items) {
-    const categoriesContainer = document.getElementById('categories-container');
+function renderTags(questions) {
+    const tagsContainer = document.getElementById('categories-container');
 
-    // Get unique categories and count products
-    const categories = {};
-    items.forEach(item => {
-        if (!categories[item.category]) {
-            categories[item.category] = 0;
+    // Zliczanie wystąpień poszczególnych tagów
+    const tagCounts = {};
+    questions.forEach(q => {
+        if (q.tags && Array.isArray(q.tags)) {
+            q.tags.forEach(tag => {
+                if (!tagCounts[tag.name]) {
+                    tagCounts[tag.name] = 0;
+                }
+                tagCounts[tag.name]++;
+            });
         }
-        categories[item.category]++;
     });
 
-    // Sort categories by count
-    const sortedCategories = Object.entries(categories)
-        .sort((a, b) => b[1] - a[1]);
+    const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 
-    // Render categories
-    let categoryHTML = '<div class="row">';
-
-    sortedCategories.forEach(([category, count]) => {
-        categoryHTML += `
-            <div class="col-md-4 mb-3">
-                <div class="card card-hover">
-                    <div class="card-body py-2">
-                        <h6 class="mb-0 d-flex justify-content-between">
-                            <span>${category}</span>
-                            <span class="badge bg-primary rounded-pill">${count}</span>
-                        </h6>
+    let tagsHTML = '<div class="row">';
+    if (sortedTags.length === 0) {
+        tagsHTML += '<div class="col-12 text-muted">Brak tagów do wyświetlenia</div>';
+    } else {
+        sortedTags.forEach(([tagName, count]) => {
+            tagsHTML += `
+                <div class="col-md-4 mb-3">
+                    <div class="card card-hover bg-light">
+                        <div class="card-body py-2">
+                            <h6 class="mb-0 d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-hash text-muted"></i>${tagName}</span>
+                                <span class="badge bg-secondary rounded-pill">${count}</span>
+                            </h6>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-    });
-
-    categoryHTML += '</div>';
-    categoriesContainer.innerHTML = categoryHTML;
+            `;
+        });
+    }
+    tagsHTML += '</div>';
+    tagsContainer.innerHTML = tagsHTML;
 }
 
 /**
- * Render products table
- * @param {Object[]} items - Array of products
+ * Render questions table matching the Question.java backend fields
+ * @param {Object[]} questions - Array of forum questions
  */
-function renderProductsTable(items) {
+function renderQuestionsTable(questions) {
     const tableContainer = document.getElementById('products-table-container');
 
-    // Define table columns
+    // Definiujemy kolumny tabeli idealnie pod encję pytań forum
     const columns = [
         {
             field: 'id',
@@ -216,305 +209,204 @@ function renderProductsTable(items) {
             width: '5%'
         },
         {
-            field: 'name',
-            title: 'Product Name',
-            render: (value, item) => {
-                return `<strong>${value}</strong>`;
-            }
-        },
-        {
-            field: 'price',
-            title: 'Price',
-            width: '10%',
+            field: 'title',
+            title: 'Temat pytania',
             render: (value) => {
-                return `$${value.toFixed(2)}`;
+                return `<span class="text-primary fw-bold" style="cursor:pointer;">${value}</span>`;
             }
         },
         {
-            field: 'category',
-            title: 'Category',
-            width: '15%'
-        },
-        {
-            field: 'inStock',
-            title: 'Stock Status',
-            width: '10%',
-            render: (value) => {
-                return value ?
-                    '<span class="badge bg-success">In Stock</span>' :
-                    '<span class="badge bg-danger">Out of Stock</span>';
-            }
-        },
-        {
-            field: 'rating',
-            title: 'Rating',
+            field: 'author',
+            title: 'Autor / Karczmarz',
             width: '15%',
-            render: (value) => {
-                const fullStars = Math.floor(value);
-                const halfStar = value - fullStars >= 0.5;
-                const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-                let stars = '';
-                for (let i = 0; i < fullStars; i++) {
-                    stars += '<i class="bi bi-star-fill text-warning"></i>';
-                }
-                if (halfStar) {
-                    stars += '<i class="bi bi-star-half text-warning"></i>';
-                }
-                for (let i = 0; i < emptyStars; i++) {
-                    stars += '<i class="bi bi-star text-warning"></i>';
-                }
-
-                return `<div>${stars} <span class="ms-1">(${value.toFixed(1)})</span></div>`;
+            render: (author) => {
+                if (!author) return '<span class="text-muted">Anonim</span>';
+                const badgeColor = author.role === 'MODERATOR' ? 'bg-danger' : 'bg-dark';
+                return `<div><strong>${author.username}</strong> <br/><span class="badge ${badgeColor} xsmall">${author.role}</span></div>`;
+            }
+        },
+        {
+            field: 'tags',
+            title: 'Tagi dyskusji',
+            width: '20%',
+            render: (tags) => {
+                if (!tags || tags.length === 0) return '<span class="text-muted">-</span>';
+                return tags.map(t => `<span class="badge bg-outline-secondary border text-dark me-1 mb-1"><i class="bi bi-tag-fill text-muted me-1"></i>${t.name}</span>`).join('');
+            }
+        },
+        {
+            field: 'status',
+            title: 'Status',
+            width: '12%',
+            render: (status) => {
+                return status === 'RESOLVED' ?
+                    '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Rozwiązane</span>' :
+                    '<span class="badge bg-warning text-dark"><i class="bi bi-lightning-charge me-1"></i>Otwarte</span>';
             }
         }
     ];
 
-    // Create table with products
-    const table = createTable(items, {
+    // Korzystamy z wbudowanego szablonu generowania tabeli w Twoim projekcie
+    const table = createTable(questions, {
         columns: columns,
         onView: (id) => {
-            showProductDetailsModal(id);
+            showQuestionDetailsModal(id);
         },
         onEdit: (id) => {
-            showEditProductModal(id);
+            showEditQuestionModal(id);
         },
-        onDelete: (id, item) => {
-            confirmDeleteProduct(id, item.name);
+        onDelete: (id, question) => {
+            confirmDeleteQuestion(id, question.title);
         }
     });
 
-    // Clear loading indicator and show table
     tableContainer.innerHTML = '';
     tableContainer.appendChild(table);
 }
 
 /**
- * Render ratings chart
- * @param {Object[]} items - Array of products
+ * Show modal with comprehensive question details (with Accepted Answer view)
+ * @param {number} id - Question ID
  */
-function renderRatingsChart(items) {
-    const ratingsContainer = document.getElementById('ratings-container');
-
-    // Group ratings by category
-    const categoryRatings = {};
-    items.forEach(item => {
-        if (!categoryRatings[item.category]) {
-            categoryRatings[item.category] = [];
-        }
-        categoryRatings[item.category].push(item.rating);
-    });
-
-    // Calculate average rating per category
-    const averageRatings = Object.entries(categoryRatings).map(([category, ratings]) => {
-        const average = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
-        return { category, average };
-    });
-
-    // Sort by average rating
-    averageRatings.sort((a, b) => b.average - a.average);
-
-    // Create chart
-    const chartHTML = `
-        <div class="chart-container">
-            <div class="row">
-                ${averageRatings.map(item => `
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h6 class="card-title">${item.category}</h6>
-                                <div class="progress" style="height: 24px;">
-                                    <div class="progress-bar bg-warning" 
-                                         role="progressbar" 
-                                         style="width: ${(item.average / 5) * 100}%;"
-                                         aria-valuenow="${item.average}" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="5">
-                                        ${item.average.toFixed(1)} / 5
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-
-    ratingsContainer.innerHTML = chartHTML;
-}
-
-/**
- * Show modal with product details
- * @param {number} id - Product ID
- */
-function showProductDetailsModal(id) {
-    // Fetch product
+function showQuestionDetailsModal(id) {
     MockApiService.getItemById(id)
-        .then(product => {
-            // Create modal content
-            const modalContent = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>ID:</strong> ${product.id}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Name:</strong> ${product.name}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Price:</strong> $${product.price.toFixed(2)}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Category:</strong> ${product.category}
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>Stock Status:</strong> ${product.inStock ?
-                '<span class="badge bg-success">In Stock</span>' :
-                '<span class="badge bg-danger">Out of Stock</span>'}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Rating:</strong> ${product.rating.toFixed(1)} / 5
-                        </div>
-                        <div class="mb-3">
-                            <strong>Status:</strong> ${product.active ?
-                '<span class="badge bg-success">Active</span>' :
-                '<span class="badge bg-secondary">Inactive</span>'}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Created:</strong> ${formatDate(product.createdDate)}
-                        </div>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <strong>Description:</strong>
-                        <p>${product.description}</p>
-                    </div>
+        .then(question => {
+
+            // Renderowanie podglądu zaakceptowanej odpowiedzi, jeśli istnieje (Relacja @OneToOne)
+            let acceptedAnswerHTML = `
+                <div class="alert alert-secondary mt-3">
+                    <i class="bi bi-info-circle me-2"></i> Brak zaakceptowanej odpowiedzi dla tego pytania.
                 </div>
             `;
 
-            // Create and show modal
+            if (question.acceptedAnswer) {
+                acceptedAnswerHTML = `
+                    <div class="card border-success mt-3 bg-light">
+                        <div class="card-header bg-success text-white py-1 d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-patch-check-fill me-1"></i> Zaakceptowana Rozwiązująca Odpowiedź</span>
+                            <small>Autor: <strong>${question.acceptedAnswer.author.username}</strong></small>
+                        </div>
+                        <div class="card-body py-2">
+                            <p class="mb-0 card-text font-monospace small">${question.acceptedAnswer.content}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const modalContent = `
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="mb-2">
+                            <strong>Identyfikator (ID):</strong> <span class="badge bg-light text-dark border">${question.id}</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Temat wątku:</strong> <br/> <h5 class="text-primary mt-1">${question.title}</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-5 border-start">
+                        <div class="mb-2">
+                            <strong>Status wpisu:</strong> ${question.status === 'RESOLVED' ? '<span class="badge bg-success">Rozwiązane</span>' : '<span class="badge bg-warning text-dark">Otwarte</span>'}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Autor wpisu:</strong> <code>${question.author ? question.author.username : 'Nieznany'}</code>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Stworzono:</strong> <small class="text-muted">${formatDate ? formatDate(question.createdAt) : question.createdAt}</small>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-2"/>
+                <div class="row">
+                    <div class="col-12">
+                        <strong>Treść pytania / Opis problemu:</strong>
+                        <div class="p-3 bg-light rounded border mt-1 mb-2" style="white-space: pre-wrap;">${question.description}</div>
+                    </div>
+                </div>
+                ${acceptedAnswerHTML}
+            `;
+
             const modal = createModal({
-                title: `Product Details: ${product.name}`,
+                title: `Szczegóły zapytania forum`,
                 content: modalContent,
                 size: 'large',
-                primaryButton: 'Edit',
-                secondaryButton: 'Close',
+                primaryButton: 'Edytuj treść',
+                secondaryButton: 'Zamknij',
                 onPrimary: () => {
                     modal.hide();
-                    showEditProductModal(id);
+                    showEditQuestionModal(id);
                 }
             });
 
             modal.show();
         })
         .catch(error => {
-            showError(`Failed to load product: ${error.message}`);
+            showError(`Nie udało się otworzyć pytania: ${error.message}`);
         });
 }
 
 /**
- * Show modal to add a new product
+ * Show modal to add a new forum question
  */
-function showAddProductModal() {
-    // Create form fields
+function showAddQuestionModal() {
     const fields = [
         {
-            id: 'name',
-            name: 'name',
-            label: 'Product Name',
+            id: 'title',
+            name: 'title',
+            label: 'Temat pytania (D&D)',
             type: 'text',
-            placeholder: 'Enter product name',
+            placeholder: 'np. Jak działa czar Fireball w ciasnym korytarzu?',
             required: true
         },
         {
             id: 'description',
             name: 'description',
-            label: 'Description',
+            label: 'Treść pytania (Rozwiń opis)',
             type: 'textarea',
-            placeholder: 'Enter product description',
-            rows: 3
+            placeholder: 'Opisz swój problem z zasadami, mechaniką lub fabułą sesji...',
+            rows: 4,
+            required: true
         },
         {
-            id: 'price',
-            name: 'price',
-            label: 'Price ($)',
-            type: 'number',
-            placeholder: 'Enter price',
-            required: true,
-            attributes: {
-                step: '0.01',
-                min: '0'
-            }
-        },
-        {
-            id: 'category',
-            name: 'category',
-            label: 'Category',
+            id: 'status',
+            name: 'status',
+            label: 'Status początkowy',
             type: 'select',
             required: true,
             options: [
-                { value: 'Electronics', label: 'Electronics' },
-                { value: 'Furniture', label: 'Furniture' },
-                { value: 'Kitchen', label: 'Kitchen' },
-                { value: 'Lighting', label: 'Lighting' },
-                { value: 'Office', label: 'Office Supplies' }
+                { value: 'OPEN', label: 'Otwarte (Oczekuje na odpowiedzi)' },
+                { value: 'RESOLVED', label: 'Rozwiązane (Zakończone)' }
             ]
-        },
-        {
-            id: 'rating',
-            name: 'rating',
-            label: 'Rating',
-            type: 'number',
-            placeholder: 'Enter rating (0-5)',
-            attributes: {
-                step: '0.1',
-                min: '0',
-                max: '5'
-            }
-        },
-        {
-            id: 'inStock',
-            name: 'inStock',
-            label: 'Stock Status',
-            type: 'checkbox',
-            checkboxLabel: 'In Stock'
-        },
-        {
-            id: 'active',
-            name: 'active',
-            label: 'Product Status',
-            type: 'checkbox',
-            checkboxLabel: 'Active'
         }
     ];
 
-    // Create form
     const form = createForm(fields, {
-        id: 'add-product-form',
-        submitLabel: 'Add Product',
+        id: 'add-question-form',
+        submitLabel: 'Opublikuj na Forum',
         initialValues: {
-            active: true,
-            inStock: true,
-            rating: 4.0
+            status: 'OPEN'
         },
         onSubmit: (formData) => {
-            // Convert string values to appropriate types
-            formData.price = parseFloat(formData.price);
-            formData.rating = parseFloat(formData.rating);
+            // Doklejamy sztucznego autora i puste tagi na potrzeby makiety sieciowej
+            formData.author = { id: 1, username: "ZalogowanyBohater", role: "USER" };
+            formData.tags = [{ id: 1, name: "Zasady Ogólne" }];
+            formData.acceptedAnswer = null;
 
-            // Create product
             modal.hide();
-            createProduct(formData);
+
+            // Wywołujemy mockowe zapisanie do tablicy
+            MockApiService.createItem(formData)
+                .then(() => {
+                    showSuccess('Pytanie zostało pomyślnie dodane do bazy karczmy!');
+                    loadExampleData();
+                })
+                .catch(error => {
+                    showError(`Nie udało się dodać wpisu: ${error.message}`);
+                });
         }
     });
 
-    // Create and show modal
     const modal = createModal({
-        title: 'Add New Product',
+        title: 'Zadaj nowe pytanie społeczności RPG',
         content: form,
         size: 'large',
         footer: false
@@ -524,104 +416,69 @@ function showAddProductModal() {
 }
 
 /**
- * Show modal to edit a product
- * @param {number} id - Product ID
+ * Show modal to edit an existing forum question
+ * @param {number} id - Question ID
  */
-function showEditProductModal(id) {
-    // Fetch product
+function showEditQuestionModal(id) {
     MockApiService.getItemById(id)
-        .then(product => {
-            // Create form fields (same as add product)
+        .then(question => {
             const fields = [
                 {
-                    id: 'name',
-                    name: 'name',
-                    label: 'Product Name',
+                    id: 'title',
+                    name: 'title',
+                    label: 'Temat pytania',
                     type: 'text',
-                    placeholder: 'Enter product name',
                     required: true
                 },
                 {
                     id: 'description',
                     name: 'description',
-                    label: 'Description',
+                    label: 'Treść pytania',
                     type: 'textarea',
-                    placeholder: 'Enter product description',
-                    rows: 3
+                    rows: 4,
+                    required: true
                 },
                 {
-                    id: 'price',
-                    name: 'price',
-                    label: 'Price ($)',
-                    type: 'number',
-                    placeholder: 'Enter price',
-                    required: true,
-                    attributes: {
-                        step: '0.01',
-                        min: '0'
-                    }
-                },
-                {
-                    id: 'category',
-                    name: 'category',
-                    label: 'Category',
+                    id: 'status',
+                    name: 'status',
+                    label: 'Status wątku',
                     type: 'select',
                     required: true,
                     options: [
-                        { value: 'Electronics', label: 'Electronics' },
-                        { value: 'Furniture', label: 'Furniture' },
-                        { value: 'Kitchen', label: 'Kitchen' },
-                        { value: 'Lighting', label: 'Lighting' },
-                        { value: 'Office', label: 'Office Supplies' }
+                        { value: 'OPEN', label: 'Otwarte' },
+                        { value: 'RESOLVED', label: 'Rozwiązane' }
                     ]
-                },
-                {
-                    id: 'rating',
-                    name: 'rating',
-                    label: 'Rating',
-                    type: 'number',
-                    placeholder: 'Enter rating (0-5)',
-                    attributes: {
-                        step: '0.1',
-                        min: '0',
-                        max: '5'
-                    }
-                },
-                {
-                    id: 'inStock',
-                    name: 'inStock',
-                    label: 'Stock Status',
-                    type: 'checkbox',
-                    checkboxLabel: 'In Stock'
-                },
-                {
-                    id: 'active',
-                    name: 'active',
-                    label: 'Product Status',
-                    type: 'checkbox',
-                    checkboxLabel: 'Active'
                 }
             ];
 
-            // Create form with product data
             const form = createForm(fields, {
-                id: 'edit-product-form',
-                submitLabel: 'Save Changes',
-                initialValues: product,
+                id: 'edit-question-form',
+                submitLabel: 'Zapisz zmiany',
+                initialValues: question,
                 onSubmit: (formData) => {
-                    // Convert string values to appropriate types
-                    formData.price = parseFloat(formData.price);
-                    formData.rating = parseFloat(formData.rating);
+                    // Zachowujemy oryginalnego autora, tagi i odpowiedzi przy edycji
+                    const updatedData = {
+                        ...question,
+                        title: formData.title,
+                        description: formData.description,
+                        status: formData.status
+                    };
 
-                    // Update product
                     modal.hide();
-                    updateProduct(id, formData);
+
+                    MockApiService.updateItem(id, updatedData)
+                        .then(() => {
+                            showSuccess('Modyfikacja posta zapisana pomyślnie!');
+                            loadExampleData();
+                        })
+                        .catch(error => {
+                            showError(`Błąd zapisu modyfikacji: ${error.message}`);
+                        });
                 }
             });
 
-            // Create and show modal
             const modal = createModal({
-                title: `Edit Product: ${product.name}`,
+                title: `Edycja wątku ID: ${question.id}`,
                 content: form,
                 size: 'large',
                 footer: false
@@ -630,58 +487,27 @@ function showEditProductModal(id) {
             modal.show();
         })
         .catch(error => {
-            showError(`Failed to load product: ${error.message}`);
+            showError(`Nie udało się wczytać danych do edycji: ${error.message}`);
         });
 }
 
 /**
- * Confirm and delete a product
- * @param {number} id - Product ID
- * @param {string} productName - Product name
+ * Confirm and delete a forum question
+ * @param {number} id - Question ID
+ * @param {string} title - Question title
  */
-function confirmDeleteProduct(id, productName) {
-    confirmAction(`Are you sure you want to delete "${productName}"?`)
+function confirmDeleteQuestion(id, title) {
+    confirmAction(`Czy na pewno chcesz bezpowrotnie usunąć wątek: "${title}"?`)
         .then(confirmed => {
             if (confirmed) {
                 MockApiService.deleteItem(id)
                     .then(() => {
-                        showSuccess('Product deleted successfully');
-                        loadExampleData(); // Reload all data
+                        showSuccess('Wątek został pomyślnie usunięty z księgi skarg.');
+                        loadExampleData();
                     })
                     .catch(error => {
-                        showError(`Failed to delete product: ${error.message}`);
+                        showError(`Nie udało się skasować wpisu: ${error.message}`);
                     });
             }
-        });
-}
-
-/**
- * Create a new product
- * @param {Object} productData - Product data
- */
-function createProduct(productData) {
-    MockApiService.createItem(productData)
-        .then(() => {
-            showSuccess('Product created successfully');
-            loadExampleData(); // Reload all data
-        })
-        .catch(error => {
-            showError(`Failed to create product: ${error.message}`);
-        });
-}
-
-/**
- * Update a product
- * @param {number} id - Product ID
- * @param {Object} productData - Updated product data
- */
-function updateProduct(id, productData) {
-    MockApiService.updateItem(id, productData)
-        .then(() => {
-            showSuccess('Product updated successfully');
-            loadExampleData(); // Reload all data
-        })
-        .catch(error => {
-            showError(`Failed to update product: ${error.message}`);
         });
 }
