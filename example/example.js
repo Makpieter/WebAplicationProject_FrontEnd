@@ -3,16 +3,7 @@
  * Handles rendering the D&D Questions forum view using mocked data
  */
 
-/**
- * Render the main login page
- */
-const loggedInUser = {
-    username: localStorage.getItem("loggedInUser") || "Guest",
-    role: localStorage.getItem("userRole") || "USER"
-};
-
 let currentQuestions = [];
-
 let currentSortField = null;
 let currentSortDirection = 'asc';
 
@@ -21,15 +12,26 @@ let currentSortDirection = 'asc';
  */
 function renderExamplePage() {
     const appContainer = document.getElementById('app-container');
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-    // 1. Bezpiecznie sprawdzamy rolę – przygotowujemy puste zmienne na dodatkowe opcje
+    // POBIERAMY AKTUALNY STAN Z LOCALSTORAGE PRZY KAŻDYM RENDEROWANIU Strony:
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const loggedInRole = localStorage.getItem("userRole") || "USER";
+
+    // 1. Przygotowujemy puste zmienne na dodatkowe opcje
     let adminButtons = '';
     let moderatorButtons = '';
+    let addQuestionButton = '';
 
-    // Generujemy przyciski administracyjne WYŁĄCZNIE dla zalogowanych o odpowiednich rolach
+    // Przyciski generujemy dynamicznie na podstawie AKTUALNEGO stanu sesji
     if (isLoggedIn) {
-        if (loggedInUser.role === 'ADMIN') {
+        // Zielony przycisk TYLKO dla zalogowanych
+        addQuestionButton = `
+            <button class="btn btn-success" id="add-question-btn">
+                <i class="bi bi-plus-circle"></i> Ask new question
+            </button>
+        `;
+
+        if (loggedInRole === 'ADMIN') {
             adminButtons = `
                 <button class="btn btn-danger me-2" id="admin-panel-btn">
                     <i class="bi bi-shield-lock"></i> Panel Administratora
@@ -37,7 +39,7 @@ function renderExamplePage() {
             `;
         }
 
-        if (loggedInUser.role === 'MODERATOR' || loggedInUser.role === 'ADMIN') {
+        if (loggedInRole === 'MODERATOR' || loggedInRole === 'ADMIN') {
             moderatorButtons = `
                 <button class="btn btn-warning me-2" id="mod-reports-btn">
                     <i class="bi bi-exclamation-triangle"></i> Zgłoszenia postów
@@ -58,9 +60,7 @@ function renderExamplePage() {
                 <i class="bi bi-search"></i> Search
              </button>
 
-             <button class="btn btn-success" id="add-question-btn">
-                <i class="bi bi-plus-circle"></i> Ask new question
-             </button>
+             ${addQuestionButton}
           </div>
         </div>
         
@@ -104,7 +104,7 @@ function renderExamplePage() {
         </div>
     `;
 
-    // 3. Bezpieczne podpięcie zdarzeń – listenery odpalą się tylko, jeśli dany przycisk istnieje
+    // 3. Bezpieczne podpięcie zdarzeń – listenery odpalą się tylko, jeśli dany przycisk istnieje w DOM
     if (isLoggedIn && document.getElementById('admin-panel-btn')) {
         document.getElementById('admin-panel-btn').addEventListener('click', () => {
             alert('You enter the secret dungeons of the Oracle database as Administrator!');
@@ -121,12 +121,14 @@ function renderExamplePage() {
         showSearchModal();
     });
 
-    // Oryginalny listener dla zielonego przycisku (zawsze aktywny strukturalnie, ale modal obsłuży stan)
-    document.getElementById('add-question-btn').addEventListener('click', () => {
-        showAddQuestionModal();
-    });
+    // Przycisk dodawania odpali się tylko, gdy użytkownik jest zalogowany (bo tylko wtedy przycisk istnieje w HTML)
+    if (isLoggedIn && document.getElementById('add-question-btn')) {
+        document.getElementById('add-question-btn').addEventListener('click', () => {
+            showAddQuestionModal();
+        });
+    }
 
-    // Oryginalne wywołanie ładowania danych z mocka
+    // Wywołanie ładowania danych z mocka
     loadExampleData();
 }
 
@@ -151,36 +153,21 @@ function showSearchModal() {
         .then(([questions, tags]) => {
 
             const fields = [
-                {
-                    id: 'question',
-                    name: 'question',
-                    label: 'Question',
-                    type: 'text'
-                },
-                {
-                    id: 'author',
-                    name: 'author',
-                    label: 'Author',
-                    type: 'text'
-                },
+                { id: 'question', name: 'question', label: 'Question', type: 'text' },
+                { id: 'author', name: 'author', label: 'Author', type: 'text' },
                 {
                     id: 'tags',
                     name: 'tagIds',
                     label: 'Tags',
                     type: 'checkbox-group',
-                    options: tags.map(tag => ({
-                        value: tag.id,
-                        label: tag.name
-                    }))
+                    options: tags.map(tag => ({ value: tag.id, label: tag.name }))
                 }
             ];
 
             const form = createForm(fields, {
                 id: 'search-form',
                 submitLabel: 'Search',
-                initialValues: {
-                    tagIds: []
-                },
+                initialValues: { tagIds: [] },
                 onSubmit: (formData) => {
                     let filtered = [...questions];
 
@@ -230,7 +217,6 @@ function showSearchModal() {
 
 /**
  * Render forum statistics based on questions data
- * @param {Object[]} questions - Array of forum questions
  */
 function renderStatistics(questions) {
     const statsContainer = document.getElementById('stats-container');
@@ -292,7 +278,6 @@ function renderStatistics(questions) {
 
 /**
  * Render tags information aggregated from questions
- * @param {Object[]} questions - Array of forum questions
  */
 function renderTags(questions) {
     const tagsContainer = document.getElementById('categories-container');
@@ -336,26 +321,21 @@ function renderTags(questions) {
 
 /**
  * Render questions table matching the Question.java backend fields
- * @param {Object[]} questions - Array of forum questions
  */
 function renderQuestionsTable(questions) {
     const tableContainer = document.getElementById('products-table-container');
+
+    // POBIERAMY ŚWIEŻE DANE Z SESJI BEZPOŚREDNIO PRZY BUDOWANIU TABELI:
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const loggedInRole = localStorage.getItem("userRole") || "USER";
 
     const columns = [
-        {
-            field: 'id',
-            title: 'ID',
-            width: '5%',
-            sortable: true,
-        },
+        { field: 'id', title: 'ID', width: '5%', sortable: true },
         {
             field: 'title',
             title: 'Question subject',
             sortable: true,
-            render: (value) => {
-                return `<span class="text-light fw-bold" style="cursor:pointer;">${value}</span>`;
-            }
+            render: (value) => `<span class="text-light fw-bold" style="cursor:pointer;">${value}</span>`
         },
         {
             field: 'author',
@@ -391,29 +371,23 @@ function renderQuestionsTable(questions) {
         }
     ];
 
-    // Opcje tabeli dopasowywane bezpiecznie pod kątem uprawnień gościa
     const tableOptions = {
         columns,
-        onSort: (field) => {
-            sortQuestions(field);
-        },
-        onView: (id) => {
-            showQuestionDetailsModal(id);
-        }
+        onSort: (field) => { sortQuestions(field); },
+        onView: (id) => { showQuestionDetailsModal(id); }
     };
 
-    // Guziki akcji pojawią się tylko zalogowanym z odpowiednią rolą
+    // AKCJE TABELI: Przypisujemy przyciski na podstawie świeżo pobranej roli z localStorage!
     if (isLoggedIn) {
-        if (loggedInUser.role === 'ADMIN' || loggedInUser.role === 'MODERATOR') {
+        if (loggedInRole === 'ADMIN' || loggedInRole === 'MODERATOR') {
             tableOptions.onEdit = (id) => showEditQuestionModal(id);
         }
-        if (loggedInUser.role === 'ADMIN') {
+        if (loggedInRole === 'ADMIN') {
             tableOptions.onDelete = (id, question) => confirmDeleteQuestion(id, question.title);
         }
     }
 
     const table = createTable(questions, tableOptions);
-
     tableContainer.innerHTML = '';
     tableContainer.appendChild(table);
 }
@@ -433,28 +407,12 @@ function sortQuestions(field) {
         let valueB;
 
         switch (field) {
-            case 'id':
-                valueA = a.id;
-                valueB = b.id;
-                break;
-            case 'title':
-                valueA = a.title || '';
-                valueB = b.title || '';
-                break;
-            case 'author':
-                valueA = a.author?.username || '';
-                valueB = b.author?.username || '';
-                break;
-            case 'status':
-                valueA = a.status || '';
-                valueB = b.status || '';
-                break;
-            case 'tags':
-                valueA = a.tags?.length || 0;
-                valueB = b.tags?.length || 0;
-                break;
-            default:
-                return 0;
+            case 'id': valueA = a.id; valueB = b.id; break;
+            case 'title': valueA = a.title || ''; valueB = b.title || ''; break;
+            case 'author': valueA = a.author?.username || ''; valueB = b.author?.username || ''; break;
+            case 'status': valueA = a.status || ''; valueB = b.status || ''; break;
+            case 'tags': valueA = a.tags?.length || 0; valueB = b.tags?.length || 0; break;
+            default: return 0;
         }
 
         if (typeof valueA === 'string') {
@@ -470,8 +428,7 @@ function sortQuestions(field) {
 }
 
 /**
- * Show modal with comprehensive question details (with Accepted Answer view)
- * @param {number} id - Question ID
+ * Show modal with comprehensive question details
  */
 function showQuestionDetailsModal(id) {
     MockApiService.getItemById(id)
@@ -529,7 +486,8 @@ function showQuestionDetailsModal(id) {
             `;
 
             const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-            const showEditBtn = isLoggedIn && (loggedInUser.role === 'ADMIN' || loggedInUser.role === 'MODERATOR');
+            const loggedInRole = localStorage.getItem("userRole") || "USER";
+            const showEditBtn = isLoggedIn && (loggedInRole === 'ADMIN' || loggedInRole === 'MODERATOR');
 
             const modal = createModal({
                 title: `Forum inquiry details`,
@@ -554,64 +512,25 @@ function showQuestionDetailsModal(id) {
  * Show modal to add a new forum question
  */
 function showAddQuestionModal() {
-    // 1. Najpierw pytamy API o wszystkie dostępne tagi
     ApiService.getAllTags()
-        .then(tags => {
-            buildAndShowModal(tags);
-        })
+        .then(tags => { buildAndShowModal(tags); })
         .catch(error => {
             console.error('Failed to load tags:', error);
             buildAndShowModal([]);
         });
 
-    // 2. Wewnętrzna funkcja pomocnicza budująca modal
     function buildAndShowModal(tagsList) {
         const fields = [
-            {
-                id: 'title',
-                name: 'title',
-                label: 'Question subject (D&D)',
-                type: 'text',
-                placeholder: 'e.g. How does the Fireball spell work in a tight corridor?',
-                required: true
-            },
-            {
-                id: 'description',
-                name: 'description',
-                label: 'Question text (Expand description)',
-                type: 'textarea',
-                placeholder: 'Describe your issue with the rules, mechanics, or plot of the session...',
-                rows: 4,
-                required: true
-            },
-            {
-                id: 'status',
-                name: 'status',
-                label: 'Initial status',
-                type: 'select',
-                required: true,
-                options: [
-                    { value: 'OPEN', label: 'Open (Waiting for responses)' },
-                    { value: 'RESOLVED', label: 'Resolved (Solved)' }
-                ]
-            },
-            {
-                id: 'tags',
-                name: 'tagIds',
-                label: 'Tags',
-                type: 'checkbox-group',
-                options: tagsList.map(tag => ({ value: tag.id, label: tag.name })),
-                emptyText: 'No tags available yet.'
-            }
+            { id: 'title', name: 'title', label: 'Question subject (D&D)', type: 'text', placeholder: 'e.g. How does the Fireball spell work in a tight corridor?', required: true },
+            { id: 'description', name: 'description', label: 'Question text (Expand description)', type: 'textarea', placeholder: 'Describe your issue with the rules, mechanics, or plot of the session...', rows: 4, required: true },
+            { id: 'status', name: 'status', label: 'Initial status', type: 'select', required: true, options: [{ value: 'OPEN', label: 'Open (Waiting for responses)' }, { value: 'RESOLVED', label: 'Resolved (Solved)' }] },
+            { id: 'tags', name: 'tagIds', label: 'Tags', type: 'checkbox-group', options: tagsList.map(tag => ({ value: tag.id, label: tag.name })), emptyText: 'No tags available yet.' }
         ];
 
         const form = createForm(fields, {
             id: 'add-question-form',
             submitLabel: 'Post on the Forum',
-            initialValues: {
-                status: 'OPEN',
-                tagIds: []
-            },
+            initialValues: { status: 'OPEN', tagIds: [] },
             onSubmit: (formData) => {
                 formData.author = {
                     id: 1,
@@ -631,57 +550,25 @@ function showAddQuestionModal() {
                         showSuccess('The question has been successfully added to the inn database!');
                         loadExampleData();
                     })
-                    .catch(error => {
-                        showError(`Failed to add entry: ${error.message}`);
-                    });
+                    .catch(error => { showError(`Failed to add entry: ${error.message}`); });
             }
         });
 
-        const modal = createModal({
-            title: 'Ask new question to the RPG community',
-            content: form,
-            size: 'large',
-            footer: false
-        });
-
+        const modal = createModal({ title: 'Ask new question to the RPG community', content: form, size: 'large', footer: false });
         modal.show();
     }
 }
 
 /**
  * Show modal to edit an existing forum question
- * @param {number} id - Question ID
  */
 function showEditQuestionModal(id) {
     MockApiService.getItemById(id)
         .then(question => {
             const fields = [
-                {
-                    id: 'title',
-                    name: 'title',
-                    label: 'Question subject',
-                    type: 'text',
-                    required: true
-                },
-                {
-                    id: 'description',
-                    name: 'description',
-                    label: 'Question content',
-                    type: 'textarea',
-                    rows: 4,
-                    required: true
-                },
-                {
-                    id: 'status',
-                    name: 'status',
-                    label: 'Thread status',
-                    type: 'select',
-                    required: true,
-                    options: [
-                        { value: 'OPEN', label: 'Open' },
-                        { value: 'RESOLVED', label: 'Solved' }
-                    ]
-                }
+                { id: 'title', name: 'title', label: 'Question subject', type: 'text', required: true },
+                { id: 'description', name: 'description', label: 'Question content', type: 'textarea', rows: 4, required: true },
+                { id: 'status', name: 'status', label: 'Thread status', type: 'select', required: true, options: [{ value: 'OPEN', label: 'Open' }, { value: 'RESOLVED', label: 'Solved' }] }
             ];
 
             const form = createForm(fields, {
@@ -703,30 +590,18 @@ function showEditQuestionModal(id) {
                             showSuccess('Post modification saved successfully!');
                             loadExampleData();
                         })
-                        .catch(error => {
-                            showError(`Error saving modifications: ${error.message}`);
-                        });
+                        .catch(error => { showError(`Error saving modifications: ${error.message}`); });
                 }
             });
 
-            const modal = createModal({
-                title: `Edit thread ID: ${question.id}`,
-                content: form,
-                size: 'large',
-                footer: false
-            });
-
+            const modal = createModal({ title: `Edit thread ID: ${question.id}`, content: form, size: 'large', footer: false });
             modal.show();
         })
-        .catch(error => {
-            showError(`Failed to load data for editing: ${error.message}`);
-        });
+        .catch(error => { showError(`Failed to load data for editing: ${error.message}`); });
 }
 
 /**
  * Confirm and delete a forum question
- * @param {number} id - Question ID
- * @param {string} title - Question title
  */
 function confirmDeleteQuestion(id, title) {
     confirmAction(`Are you sure you want to permanently delete the thread: "${title}"?`)
@@ -737,9 +612,7 @@ function confirmDeleteQuestion(id, title) {
                         showSuccess('The thread has been successfully removed from the complaint book.');
                         loadExampleData();
                     })
-                    .catch(error => {
-                        showError(`Failed to delete entry: ${error.message}`);
-                    });
+                    .catch(error => { showError(`Failed to delete entry: ${error.message}`); });
             }
         });
 }
