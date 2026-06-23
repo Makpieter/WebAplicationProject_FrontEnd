@@ -6,14 +6,45 @@
 /**
  * Render the main forum page
  */
+const loggedInUser = {
+    username: localStorage.getItem("loggedInUser") || "Gość",
+    role: localStorage.getItem("userRole") || "USER"
+};
+/**
+ * Render the main forum page
+ */
 function renderExamplePage() {
     const appContainer = document.getElementById('app-container');
 
-    // Ustawienie struktury forum (Zamiast sklepu - widok pytań)
+    // 1. Bezpiecznie sprawdzamy rolę – przygotowujemy puste zmienne na dodatkowe opcje
+    let adminButtons = '';
+    let moderatorButtons = '';
+
+    // Dodatkowy guzik dedykowany wyłącznie dla roli ADMIN
+    if (loggedInUser.role === 'ADMIN') {
+        adminButtons = `
+            <button class="btn btn-danger me-2" id="admin-panel-btn">
+                <i class="bi bi-shield-lock"></i> Panel Administratora
+            </button>
+        `;
+    }
+
+    // Dodatkowy guzik dedykowany dla ról MODERATOR oraz ADMIN
+    if (loggedInUser.role === 'MODERATOR' || loggedInUser.role === 'ADMIN') {
+        moderatorButtons = `
+            <button class="btn btn-warning me-2" id="mod-reports-btn">
+                <i class="bi bi-exclamation-triangle"></i> Zgłoszenia postów
+            </button>
+        `;
+    }
+
+    // 2. Składamy strukturę strony – oryginalne elementy zostają nienaruszone, dodajemy tylko nowe zmienne obok zielonego przycisku
     appContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Forum Pytań D&D</h2>
             <div>
+                ${adminButtons}
+                ${moderatorButtons}
                 <button class="btn btn-success" id="add-question-btn">
                     <i class="bi bi-plus-circle"></i> Zadaj nowe pytanie
                 </button>
@@ -60,12 +91,24 @@ function renderExamplePage() {
         </div>
     `;
 
-    // Nasłuchiwanie przycisku dodawania pytania
+    // 3. Bezpieczne podpięcie zdarzeń – listenery odpalą się tylko, jeśli dany przycisk wyrenderował się dla zalogowanej roli
+    if (document.getElementById('admin-panel-btn')) {
+        document.getElementById('admin-panel-btn').addEventListener('click', () => {
+            alert('Wchodzisz do tajnych lochów bazy danych Oracle jako Administrator!');
+        });
+    }
+    if (document.getElementById('mod-reports-btn')) {
+        document.getElementById('mod-reports-btn').addEventListener('click', () => {
+            alert('Otwieranie listy zgłoszonych graczy łamiących regulamin karczmy...');
+        });
+    }
+
+    // Oryginalny listener dla zielonego przycisku (zawsze aktywny)
     document.getElementById('add-question-btn').addEventListener('click', () => {
         showAddQuestionModal();
     });
 
-    // Pobranie danych przy użyciu udawanej bazy (Mocka)
+    // Oryginalne wywołanie ładowania danych z mocka
     loadExampleData();
 }
 

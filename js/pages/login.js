@@ -46,15 +46,31 @@ function renderLoginPage() {
         const password = document.getElementById("password").value;
         const message  = document.getElementById("message");
 
-        // Check hardcoded admin account OR any registered user
-        const isAdmin = username === "admin" && password === "1234";
-        const users   = getRegisteredUsers();
+        // Sprawdzamy konta wpisane na sztywno pod testy ról
+        const isAdmin = (username.toLowerCase() === "admin" || username.toLowerCase() === "Makpieter" || username.toLowerCase() === "Isari") && password === "1234";
+        const isMod   = (username.toLowerCase() === "moderator" || username.toLowerCase() === "miszczignita" || username.toLowerCase() === "saddm") && password === "1234";
+        const isPlayer = (username.toLowerCase() === "gracz" || username.toLowerCase() === "wiedzmin") && password === "1234";
+
+        // Sprawdzamy konta z rejestracji użytkownika
+        const users = typeof getRegisteredUsers === 'function' ? getRegisteredUsers() : {};
         const isRegistered = users[username] && users[username] === password;
 
-        if (isAdmin || isRegistered) {
+        if (isAdmin || isMod || isPlayer || isRegistered) {
             localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("loggedInUser", username);
-            updateLogoutButton();
+
+            // Przypisywanie roli do LocalStorage na podstawie loginu
+            let role = "USER";
+
+            if (isAdmin) {
+                role = "ADMIN";
+            } else if (isMod) {
+                role = "MODERATOR";
+            }
+
+            localStorage.setItem("userRole", role);
+
+            if (typeof updateLogoutButton === 'function') updateLogoutButton();
             navigateTo("home");
         } else {
             message.textContent = "Invalid username or password.";
