@@ -1,9 +1,10 @@
 /**
  * API Service
- * Handles all communication with the backend REST API
+ * Currently delegates to MockApiService (localStorage) so the app works
+ * fully offline/locally. To switch back to the Spring Boot backend later,
+ * replace each method body with the commented-out fetch version below it.
  */
 
-// Configuration - CHANGE THIS TO MATCH YOUR BACKEND
 const API_CONFIG = {
     baseUrl: 'http://localhost:8765/api',
     endpoints: {
@@ -21,200 +22,95 @@ const API_CONFIG = {
     }
 };
 
-/**
- * API Service object
- */
 const ApiService = {
-    /**
-     * Perform a GET request
-     * @param {string} endpoint - API endpoint
-     * @returns {Promise} - Promise that resolves with response data
-     */
+
+    // ── Low-level fetch helpers (kept for future backend use) ─────────────────
+
     get: async function(endpoint) {
-        try {
-            const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`);
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status} ${response.statusText}`);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('API Request Failed:', error);
-            throw error;
-        }
+        const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`);
+        if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return response.json();
     },
 
-    /**
-     * Perform a POST request
-     * @param {string} endpoint - API endpoint
-     * @param {Object} data - Data to send
-     * @returns {Promise} - Promise that resolves with response data
-     */
     post: async function(endpoint, data) {
-        try {
-            const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status} ${response.statusText}`);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('API Request Failed:', error);
-            throw error;
-        }
+        const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return response.json();
     },
 
-    /**
-     * Perform a PUT request
-     * @param {string} endpoint - API endpoint
-     * @param {Object} data - Data to send
-     * @returns {Promise} - Promise that resolves with response data
-     */
     put: async function(endpoint, data) {
-        try {
-            const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status} ${response.statusText}`);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('API Request Failed:', error);
-            throw error;
-        }
+        const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return response.json();
     },
 
-    /**
-     * Perform a DELETE request
-     * @param {string} endpoint - API endpoint
-     * @returns {Promise} - Promise that resolves with response data
-     */
     delete: async function(endpoint) {
-        try {
-            const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status} ${response.statusText}`);
-            }
-
-            return true;
-        } catch (error) {
-            console.error('API Request Failed:', error);
-            throw error;
-        }
+        const response = await fetch(`${API_CONFIG.baseUrl}${endpoint}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        return true;
     },
 
-    // Specific API operations - CUSTOMIZE THESE FOR YOUR ENTITY
+    // ── Tags ──────────────────────────────────────────────────────────────────
 
-    /**
-     * Get all items
-     * @returns {Promise} - Promise that resolves with all items
-     */
-    getAllItems: function() {
-        return this.get(API_CONFIG.endpoints.items);
-    },
-
-    /**
-     * Get item by ID
-     * @param {number} id - Item ID
-     * @returns {Promise} - Promise that resolves with item data
-     */
-    getItemById: function(id) {
-        return this.get(`${API_CONFIG.endpoints.items}/${id}`);
-    },
-
-    /**
-     * Create a new item
-     * @param {Object} item - Item data
-     * @returns {Promise} - Promise that resolves with created item
-     */
-    createItem: function(item) {
-        return this.post(API_CONFIG.endpoints.items, item);
-    },
-
-    /**
-     * Update an existing item
-     * @param {number} id - Item ID
-     * @param {Object} item - Updated item data
-     * @returns {Promise} - Promise that resolves with updated item
-     */
-    updateItem: function(id, item) {
-        return this.put(`${API_CONFIG.endpoints.items}/${id}`, item);
-    },
-
-    /**
-     * Delete an item
-     * @param {number} id - Item ID
-     * @returns {Promise} - Promise that resolves when item is deleted
-     */
-    deleteItem: function(id) {
-        return this.delete(`${API_CONFIG.endpoints.items}/${id}`);
-    },
-
-    /**
-     * Get all tags
-     * @returns {Promise} - Promise that resolves with all tags
-     */
     getAllTags: function() {
-        return this.get(API_CONFIG.endpoints.tags);
+        return MockApiService.getAllTags();
+        // ↑ Switch to backend later: return this.get(API_CONFIG.endpoints.tags);
     },
 
-    /**
-     * Get all questions
-     * @returns {Promise} - Promise that resolves with all questions
-     */
+    // ── Questions ─────────────────────────────────────────────────────────────
+
     getAllQuestions: function() {
-        return this.get(API_CONFIG.endpoints.questions);
+        return MockApiService.getAllQuestions();
+        // ↑ Switch to backend later: return this.get(API_CONFIG.endpoints.questions);
     },
 
-    /**
-     * Create a new question
-     * @param {Object} question - { title, description, tagIds, authorId, status, ... }
-     * @returns {Promise} - Promise that resolves with the created question (including its id)
-     */
-    createQuestion: function(question) {
-        return this.post(API_CONFIG.endpoints.questions, question);
-    },
-
-    /**
-     * Get a question by ID
-     * NOTE: the backend does not currently expose GET /api/questions/{id}.
-     * This will fail with a 404/405 until that endpoint is added.
-     * @param {number} id - Question ID
-     * @returns {Promise} - Promise that resolves with question data
-     */
     getQuestionById: function(id) {
-        return this.get(`${API_CONFIG.endpoints.questions}/${id}`);
+        return MockApiService.getQuestionById(id);
+        // ↑ Switch to backend later: return this.get(`${API_CONFIG.endpoints.questions}/${id}`);
     },
 
-    /**
-     * Update an existing question
-     * NOTE: the backend does not currently expose PUT /api/questions/{id}
-     * (no method in QuestionController/QuestionsService). This will fail
-     * until that endpoint + service method are added.
-     * @param {number} id - Question ID
-     * @param {Object} question - Updated question data
-     * @returns {Promise} - Promise that resolves with updated question
-     */
+    createQuestion: function(question) {
+        return MockApiService.createQuestion(question);
+        // ↑ Switch to backend later: return this.post(API_CONFIG.endpoints.questions, question);
+    },
+
     updateQuestion: function(id, question) {
-        return this.put(`${API_CONFIG.endpoints.questions}/${id}`, question);
+        return MockApiService.updateQuestion(id, question);
+        // ↑ Switch to backend later: return this.put(`${API_CONFIG.endpoints.questions}/${id}`, question);
+    },
+
+    deleteQuestion: function(id) {
+        return MockApiService.deleteQuestion(id);
+        // ↑ Switch to backend later: return this.delete(`${API_CONFIG.endpoints.questions}/${id}`);
+    },
+
+    // ── Legacy item methods (kept so other pages don't break) ─────────────────
+
+    getAllItems: function() {
+        return MockApiService.getAllQuestions();
+    },
+
+    getItemById: function(id) {
+        return MockApiService.getQuestionById(id);
+    },
+
+    createItem: function(item) {
+        return MockApiService.createQuestion(item);
+    },
+
+    updateItem: function(id, item) {
+        return MockApiService.updateQuestion(id, item);
+    },
+
+    deleteItem: function(id) {
+        return MockApiService.deleteQuestion(id);
     }
 };
-export default MockApiService;
