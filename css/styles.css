@@ -228,3 +228,41 @@ nav {
 #edit-question-form label {
     color: var(--text-dark) !important;
 }
+
+/* Tło całego formularza wyszukiwania */
+.search-theme, 
+.search-theme-modal .modal-content {
+    color: var(--text-avg) !important;             /* Normalny zielony tekst */
+}
+
+/* Nagłówki pól (Labelki) */
+.search-theme label,
+.search-theme .form-label {
+    color: var(--text-dark) !important;             /* Normalny zielony */
+    font-weight: bold;
+}
+
+/* Sekcja z checkboxami (Tags) */
+.search-theme .form-check-label {
+    color: var(--text-avg) !important;             /* Normalny zielony tekst przy tagach */
+}
+
+/* Główny przycisk "Search" */
+.search-theme btn,
+.search-theme button[type="submit"],
+.search-theme .btn-primary {
+    color: var(--text-dark) !important;
+    font-weight: bold;
+}
+
+/* Efekt najechania myszką na przycisk Search (odwrócenie kolorów) */
+.search-theme button[type="submit"]:hover,
+.search-theme .btn-primary:hover {
+    color: var(--text-avg) !important;             /* Tekst jasnieje */
+}
+
+/* Celujemy w nagłówek modala, który zawiera w sobie formularz .search-theme */
+.modal:has(.search-theme) .modal-title {
+    color: var(--text-dark) !important; /* Zmiana samego tekstu tytułu na ciemny */
+    font-weight: bold;
+}

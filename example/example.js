@@ -42,13 +42,18 @@ function renderExamplePage() {
     appContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Question Forum D&D</h2>
-            <div>
-                ${adminButtons}
-                ${moderatorButtons}
-                <button class="btn btn-success" id="add-question-btn">
-                    <i class="bi bi-plus-circle"></i> Ask new question
-                </button>
-            </div>
+			<div>
+				${adminButtons}
+				${moderatorButtons}
+
+				<button class="btn btn-info me-2" id="search-question-btn">
+					<i class="bi bi-search"></i> Search
+				</button>
+
+				<button class="btn btn-success" id="add-question-btn">
+					<i class="bi bi-plus-circle"></i> Ask new question
+				</button>
+			</div>
         </div>
         
         <div class="row mb-4">
@@ -103,10 +108,15 @@ function renderExamplePage() {
         });
     }
 
+    // Listener dla wyszukiwania
+	document.getElementById('search-question-btn').addEventListener('click', () => {
+		showSearchModal();
+	});
+
     // Oryginalny listener dla zielonego przycisku (zawsze aktywny)
-    document.getElementById('add-question-btn').addEventListener('click', () => {
-        showAddQuestionModal();
-    });
+	document.getElementById('add-question-btn').addEventListener('click', () => {
+		showAddQuestionModal();
+	});
 
     // Oryginalne wywołanie ładowania danych z mocka
     loadExampleData();
@@ -126,6 +136,113 @@ function loadExampleData() {
         .catch(error => {
             showError(`Loading data error: ${error.message}`);
         });
+}
+
+function showSearchModal() {
+
+    Promise.all([
+        MockApiService.getAllItems(),
+        ApiService.getAllTags()
+    ])
+    .then(([questions, tags]) => {
+
+        const fields = [
+            {
+                id: 'question',
+                name: 'question',
+                label: 'Question',
+                type: 'text'
+            },
+            {
+                id: 'author',
+                name: 'author',
+                label: 'Author',
+                type: 'text'
+            },
+            {
+                id: 'tags',
+                name: 'tagIds',
+                label: 'Tags',
+                type: 'checkbox-group',
+                options: tags.map(tag => ({
+                    value: tag.id,
+                    label: tag.name
+                }))
+            }
+        ];
+
+        const form = createForm(fields, {
+            id: 'search-form',
+            submitLabel: 'Search',
+            initialValues: {
+                tagIds: []
+            },
+
+            onSubmit: (formData) => {
+
+                let filtered = [...questions];
+
+                if (formData.question?.trim()) {
+
+                    const phrase =
+                        formData.question.toLowerCase();
+
+                    filtered = filtered.filter(q =>
+                        q.title?.toLowerCase().includes(phrase) ||
+                        q.description?.toLowerCase().includes(phrase)
+                    );
+                }
+
+                if (formData.author?.trim()) {
+
+                    const author =
+                        formData.author.toLowerCase();
+
+                    filtered = filtered.filter(q =>
+                        q.author?.username
+                            ?.toLowerCase()
+                            .includes(author)
+                    );
+                }
+
+                if (formData.tagIds?.length) {
+
+                    filtered = filtered.filter(question => {
+
+                        const questionTagIds =
+                            (question.tags || [])
+                                .map(tag => tag.id);
+
+                        return formData.tagIds.every(tagId =>
+                            questionTagIds.includes(tagId)
+                        );
+                    });
+                }
+
+                renderQuestionsTable(filtered);
+
+                modal.hide();
+
+                showSuccess(
+                    `Found ${filtered.length} matching questions`
+                );
+            }
+        });
+		
+		form.classList.add('search-theme'); 
+
+        const modal = createModal({
+            title: 'Search Questions',
+            content: form,
+            size: 'large',
+            footer: false
+        });
+
+        modal.show();
+    })
+    .catch(error => {
+        showError(error.message);
+    });
 }
 
 /**
