@@ -32,14 +32,35 @@ function createTable(data, options) {
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
 
-    tableOptions.columns.forEach(column => {
-        const th = document.createElement('th');
-        th.textContent = column.title;
-        if (column.width) {
-            th.style.width = column.width;
-        }
-        headerRow.appendChild(th);
-    });
+	tableOptions.columns.forEach(column => {
+
+		const th = document.createElement('th');
+
+		th.textContent = column.title;
+
+		if (column.width) {
+			th.style.width = column.width;
+		}
+
+		if (column.sortable) {
+
+			th.style.cursor = 'pointer';
+
+			th.innerHTML = `
+				${column.title}
+				<i class="bi bi-arrow-down-up ms-1"></i>
+			`;
+
+			th.addEventListener('click', () => {
+
+				if (tableOptions.onSort) {
+					tableOptions.onSort(column.field);
+				}
+			});
+		}
+
+		headerRow.appendChild(th);
+	});
 
     if (tableOptions.actions.view || tableOptions.actions.edit || tableOptions.actions.delete) {
         const actionsHeader = document.createElement('th');

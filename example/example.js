@@ -10,6 +10,12 @@ const loggedInUser = {
     username: localStorage.getItem("loggedInUser") || "Guest",
     role: localStorage.getItem("userRole") || "USER"
 };
+
+let currentQuestions = [];
+
+let currentSortField = null;
+let currentSortDirection = 'asc';
+
 /**
  * Render the main forum page
  */
@@ -128,14 +134,14 @@ function renderExamplePage() {
 function loadExampleData() {
     // Wywołujemy pobieranie pytań (które teraz podstawiliśmy pod getAllItems() w api.js)
     MockApiService.getAllItems()
-        .then(questions => {
-            renderStatistics(questions);
-            renderTags(questions);
-            renderQuestionsTable(questions);
-        })
-        .catch(error => {
-            showError(`Loading data error: ${error.message}`);
-        });
+		.then(questions => {
+
+			currentQuestions = [...questions];
+
+			renderStatistics(questions);
+			renderTags(questions);
+			renderQuestionsTable(questions);
+		})
 }
 
 function showSearchModal() {
@@ -366,11 +372,13 @@ function renderQuestionsTable(questions) {
         {
             field: 'id',
             title: 'ID',
-            width: '5%'
+            width: '5%',
+			sortable: true,
         },
         {
             field: 'title',
             title: 'Question subject',
+			sortable: true,
             render: (value) => {
                 return `<span class="text-light fw-bold" style="cursor:pointer;">${value}</span>`;
             }
@@ -378,6 +386,7 @@ function renderQuestionsTable(questions) {
         {
             field: 'author',
             title: 'Author / Sojourner',
+			sortable: true,
             width: '15%',
             render: (author) => {
                 if (!author) return '<span class="text-light">Anonim</span>';
@@ -388,6 +397,7 @@ function renderQuestionsTable(questions) {
         {
             field: 'tags',
             title: 'Discussion tags',
+			sortable: true,
             width: '20%',
             render: (tags) => {
                 if (!tags || tags.length === 0) return '<span class="text-light">-</span>';
@@ -397,6 +407,7 @@ function renderQuestionsTable(questions) {
         {
             field: 'status',
             title: 'Status',
+			sortable: true,
             width: '12%',
             render: (status) => {
                 return status === 'RESOLVED' ?
@@ -406,8 +417,11 @@ function renderQuestionsTable(questions) {
         }
     ];
 
-    const table = createTable(questions, {
-        columns: columns,
+	const table = createTable(questions, {
+		columns,
+		onSort: (field) => {
+			sortQuestions(field);
+		},
         onView: (id) => {
             showQuestionDetailsModal(id);
         },
@@ -421,6 +435,78 @@ function renderQuestionsTable(questions) {
 
     tableContainer.innerHTML = '';
     tableContainer.appendChild(table);
+}
+function sortQuestions(field) {
+
+    if (currentSortField === field) {
+
+        currentSortDirection =
+            currentSortDirection === 'asc'
+                ? 'desc'
+                : 'asc';
+
+    } else {
+
+        currentSortField = field;
+        currentSortDirection = 'asc';
+    }
+
+    const sorted = [...currentQuestions];
+
+    sorted.sort((a, b) => {
+
+        let valueA;
+        let valueB;
+
+        switch (field) {
+
+            case 'id':
+                valueA = a.id;
+                valueB = b.id;
+                break;
+
+            case 'title':
+                valueA = a.title || '';
+                valueB = b.title || '';
+                break;
+
+            case 'author':
+                valueA = a.author?.username || '';
+                valueB = b.author?.username || '';
+                break;
+
+            case 'status':
+                valueA = a.status || '';
+                valueB = b.status || '';
+                break;
+
+            case 'tags':
+                valueA = a.tags?.length || 0;
+                valueB = b.tags?.length || 0;
+                break;
+
+            default:
+                return 0;
+        }
+
+        if (typeof valueA === 'string') {
+
+            const result =
+                valueA.localeCompare(valueB);
+
+            return currentSortDirection === 'asc'
+                ? result
+                : -result;
+        }
+
+        return currentSortDirection === 'asc'
+            ? valueA - valueB
+            : valueB - valueA;
+    });
+
+    currentQuestions = sorted;
+
+    renderQuestionsTable(sorted);
 }
 
 /**
