@@ -19,8 +19,19 @@ function updateLogoutButton() {
     const logoutBtn = document.getElementById("logoutBtn");
     if (!logoutBtn) return;
 
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    logoutBtn.style.display = isLoggedIn ? "inline-block" : "none";
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    if (isLoggedIn) {
+        // Jeśli zalogowany: pokazujemy przycisk jako "Log Out" z czerwonym/ciemnym akcentem
+        logoutBtn.textContent = "Log Out";
+        logoutBtn.className = "btn btn-outline-danger btn-sm align-middle ms-2"; // możesz dostosować klasy pod Bootstrapa
+        logoutBtn.style.display = "inline-block";
+    } else {
+        // Jeśli gość: zmieniamy tekst na "Log In" i styl na wyróżniający się
+        logoutBtn.textContent = "Log In";
+        logoutBtn.className = "btn btn-primary btn-sm align-middle ms-2";
+        logoutBtn.style.display = "inline-block"; // Robimy go widocznym dla gościa!
+    }
 }
 
 /**
@@ -46,9 +57,11 @@ function navigateTo(route, params = {}) {
  * Renders the current route content
  */
 function renderCurrentRoute() {
-    // Redirect to landing if not authenticated (allow landing, login, register through)
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const publicRoutes = ['landing', 'login', 'register'];
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+    // NAPRAWIONE: 'home' oraz 'example' są teraz oficjalnie publiczne dla gości
+    const publicRoutes = ['landing', 'login', 'register', 'home', 'example'];
+
     if (!isLoggedIn && !publicRoutes.includes(appState.currentRoute)) {
         appState.currentRoute = 'landing';
         appState.params = {};
@@ -174,23 +187,28 @@ function confirmAction(message) {
  * Initialize the application
  */
 function initApp() {
-    // Set up logout button (safe to do here - DOM is ready)
+    // Bezpieczne wylogowanie z potwierdzeniem SweetAlert
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            // NOWOŚĆ: Wykorzystujemy Twoją funkcję confirmAction, aby zapytać o potwierdzenie
-            confirmAction("Czy na pewno chcesz opuścić karczmę i się wylogować?")
-                .then(confirmed => {
-                    if (confirmed) {
-                        // Jeśli użytkownik kliknął "Yes" (Tak):
-                        localStorage.removeItem("isLoggedIn");
-                        localStorage.removeItem("loggedInUser"); // bezpiecznie czyścimy też nick
-                        localStorage.removeItem("userRole");     // oraz fejkowe role
-                        updateLogoutButton();
-                        navigateTo("login");
-                    }
-                    // Jeśli kliknął "No" (Anuluj), funkcja nic nie zrobi i użytkownik zostaje na stronie
-                });
+            const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+            if (isLoggedIn) {
+                // Jeśli był zalogowany -> pytamy o wylogowanie
+                confirmAction("Czy na pewno chcesz opuścić karczmę i się wylogować?")
+                    .then(confirmed => {
+                        if (confirmed) {
+                            localStorage.removeItem("isLoggedIn");
+                            localStorage.removeItem("loggedInUser");
+                            localStorage.removeItem("userRole");
+                            updateLogoutButton();
+                            navigateTo("login");
+                        }
+                    });
+            } else {
+                // Jeśli był gościem -> po prostu przekierowujemy do logowania
+                navigateTo("login");
+            }
         });
     }
 
@@ -201,39 +219,18 @@ function initApp() {
     document.querySelectorAll('[data-route]').forEach(element => {
         element.addEventListener('click', (e) => {
             e.preventDefault();
-            const route = e.target.getAttribute('data-route');
+            const route = element.getAttribute('data-route');
             navigateTo(route);
         });
     });
 
-    // Initial route: go to landing if not authenticated, otherwise home
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    // NAPRAWIONE: Ustalenie trasy startowej bez blokowania gości
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (!isLoggedIn) {
-        navigateTo("landing");
+        navigateTo("landing"); // lub "home", zależy co chcecie pokazać niezalogowanym jako pierwsze
     } else {
         navigateTo("home");
     }
-}
-
-    // Show/hide logout button based on current auth state
-    updateLogoutButton();
-
-    // Set up navigation event listeners
-    document.querySelectorAll('[data-route]').forEach(element => {
-        element.addEventListener('click', (e) => {
-            e.preventDefault();
-            const route = e.target.getAttribute('data-route');
-            navigateTo(route);
-        });
-    });
-
-    // Initial route: go to landing if not authenticated, otherwise home
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
-        navigateTo("landing");
-    } else {
-        navigateTo("home");
-
 }
 
 // Initialize the app when the DOM is fully loaded
