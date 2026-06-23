@@ -47,7 +47,7 @@ function renderLoginPage() {
         const message  = document.getElementById("message");
 
         // Sprawdzamy konta wpisane na sztywno pod testy ról
-        const isAdmin = (username.toLowerCase() === "admin" || username.toLowerCase() === "Makpieter" || username.toLowerCase() === "Isari") && password === "1234";
+        const isAdmin = (username.toLowerCase() === "admin" || username.toLowerCase() === "makpieter" || username.toLowerCase() === "isari") && password === "1234";
         const isMod   = (username.toLowerCase() === "moderator" || username.toLowerCase() === "miszczignita" || username.toLowerCase() === "saddm") && password === "1234";
         const isPlayer = (username.toLowerCase() === "gracz" || username.toLowerCase() === "wiedzmin") && password === "1234";
 
