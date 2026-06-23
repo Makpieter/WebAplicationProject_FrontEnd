@@ -12,7 +12,7 @@
 function createTable(data, options) {
     const defaultOptions = {
         columns: [],
-        tableClass: 'table table-striped table-hover',
+        tableClass: 'table table-striped table-hover align-middle', 
         idField: 'id',
         actions: {
             view: true,
@@ -24,18 +24,14 @@ function createTable(data, options) {
         onDelete: null
     };
 
-    // Merge default options with provided options
     const tableOptions = { ...defaultOptions, ...options };
 
-    // Create table element
     const table = document.createElement('table');
     table.className = tableOptions.tableClass;
 
-    // Create table header
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
 
-    // Add column headers
     tableOptions.columns.forEach(column => {
         const th = document.createElement('th');
         th.textContent = column.title;
@@ -45,29 +41,28 @@ function createTable(data, options) {
         headerRow.appendChild(th);
     });
 
-    // Add actions header if any actions are enabled
     if (tableOptions.actions.view || tableOptions.actions.edit || tableOptions.actions.delete) {
         const actionsHeader = document.createElement('th');
         actionsHeader.textContent = 'Actions';
         actionsHeader.className = 'table-actions';
+        // Rezerwujemy bezpieczną szerokość dla kolumny akcji
+        actionsHeader.style.width = '240px'; 
         headerRow.appendChild(actionsHeader);
     }
 
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    // Create table body
     const tbody = document.createElement('tbody');
 
-    // Add data rows
     data.forEach(item => {
         const row = document.createElement('tr');
+        // KROK 1: Wymuszamy pozycjonowanie relatywne na wierszu, aby przyciski wiedziały do jakiej wysokości się przypiąć
+        row.style.position = 'relative';
 
-        // Add data cells
         tableOptions.columns.forEach(column => {
             const td = document.createElement('td');
 
-            // Check if custom renderer exists
             if (column.render) {
                 td.innerHTML = column.render(item[column.field], item);
             } else {
@@ -77,16 +72,27 @@ function createTable(data, options) {
             row.appendChild(td);
         });
 
-        // Add action buttons if enabled
         if (tableOptions.actions.view || tableOptions.actions.edit || tableOptions.actions.delete) {
             const actionCell = document.createElement('td');
-            actionCell.className = 'd-flex gap-2';
+            // KROK 2: Nadajemy stałą pozycję i rozciągamy kontener na 100% wysokości wiersza od krawędzi do krawędzi
+            actionCell.className = 'd-flex gap-1 align-items-stretch';
+            actionCell.style.position = 'absolute';
+            actionCell.style.top = '0px';
+            actionCell.style.bottom = '0';
+            actionCell.style.right = '0';
+            actionCell.style.left = 'auto'; // Trzyma kolumnę po prawej stronie
+            actionCell.style.width = '240px'; // Musi być identyczna jak szerokość w nagłówku TH
+            actionCell.style.padding = '14px'; // Minimalny, estetyczny odstęp od krawędzi wiersza
+            actionCell.style.backgroundColor = 'transparent'; 
+
+            // KROK 3: Klasy dla przycisków gwarantujące pełną wysokość (h-100) oraz idealne centrowanie tekstu i ikony
+            const btnBaseClass = 'btn btn-sm h-100 d-flex align-items-center justify-content-center flex-grow-1 text-nowrap px-2';
 
             // View button
             if (tableOptions.actions.view) {
                 const viewBtn = document.createElement('button');
-                viewBtn.className = 'btn btn-sm btn-info';
-                viewBtn.innerHTML = '<i class="bi bi-eye"></i> View';
+                viewBtn.className = `${btnBaseClass} btn-info`;
+                viewBtn.innerHTML = '<i class="bi bi-eye me-1"></i> View';
                 viewBtn.onclick = () => {
                     if (tableOptions.onView) {
                         tableOptions.onView(item[tableOptions.idField], item);
@@ -98,8 +104,8 @@ function createTable(data, options) {
             // Edit button
             if (tableOptions.actions.edit) {
                 const editBtn = document.createElement('button');
-                editBtn.className = 'btn btn-sm btn-warning';
-                editBtn.innerHTML = '<i class="bi bi-pencil"></i> Edit';
+                editBtn.className = `${btnBaseClass} btn-warning`;
+                editBtn.innerHTML = '<i class="bi bi-pencil me-1"></i> Edit';
                 editBtn.onclick = () => {
                     if (tableOptions.onEdit) {
                         tableOptions.onEdit(item[tableOptions.idField], item);
@@ -111,8 +117,8 @@ function createTable(data, options) {
             // Delete button
             if (tableOptions.actions.delete) {
                 const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-sm btn-danger';
-                deleteBtn.innerHTML = '<i class="bi bi-trash"></i> Delete';
+                deleteBtn.className = `${btnBaseClass} btn-danger`;
+                deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i> Delete';
                 deleteBtn.onclick = () => {
                     if (tableOptions.onDelete) {
                         tableOptions.onDelete(item[tableOptions.idField], item);
@@ -129,12 +135,10 @@ function createTable(data, options) {
 
     table.appendChild(tbody);
 
-    // Create table container with options
     const tableContainer = document.createElement('div');
     tableContainer.className = 'table-responsive';
     tableContainer.appendChild(table);
 
-    // Add empty state message if no data
     if (data.length === 0) {
         const emptyState = document.createElement('div');
         emptyState.className = 'text-center my-4 text-muted';
