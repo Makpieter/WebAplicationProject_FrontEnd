@@ -21,45 +21,47 @@ let currentSortDirection = 'asc';
  */
 function renderExamplePage() {
     const appContainer = document.getElementById('app-container');
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
     // 1. Bezpiecznie sprawdzamy rolę – przygotowujemy puste zmienne na dodatkowe opcje
     let adminButtons = '';
     let moderatorButtons = '';
 
-    // Dodatkowy guzik dedykowany wyłącznie dla roli ADMIN
-    if (loggedInUser.role === 'ADMIN') {
-        adminButtons = `
-            <button class="btn btn-danger me-2" id="admin-panel-btn">
-                <i class="bi bi-shield-lock"></i> Panel Administratora
-            </button>
-        `;
+    // Generujemy przyciski administracyjne WYŁĄCZNIE dla zalogowanych o odpowiednich rolach
+    if (isLoggedIn) {
+        if (loggedInUser.role === 'ADMIN') {
+            adminButtons = `
+                <button class="btn btn-danger me-2" id="admin-panel-btn">
+                    <i class="bi bi-shield-lock"></i> Panel Administratora
+                </button>
+            `;
+        }
+
+        if (loggedInUser.role === 'MODERATOR' || loggedInUser.role === 'ADMIN') {
+            moderatorButtons = `
+                <button class="btn btn-warning me-2" id="mod-reports-btn">
+                    <i class="bi bi-exclamation-triangle"></i> Zgłoszenia postów
+                </button>
+            `;
+        }
     }
 
-    // Dodatkowy guzik dedykowany dla ról MODERATOR oraz ADMIN
-    if (loggedInUser.role === 'MODERATOR' || loggedInUser.role === 'ADMIN') {
-        moderatorButtons = `
-            <button class="btn btn-warning me-2" id="mod-reports-btn">
-                <i class="bi bi-exclamation-triangle"></i> Zgłoszenia postów
-            </button>
-        `;
-    }
-
-    // 2. Składamy strukturę strony – oryginalne elementy zostają nienaruszone, dodajemy tylko nowe zmienne obok zielonego przycisku
+    // 2. Składamy strukturę strony
     appContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Question Forum D&D</h2>
-			<div>
-				${adminButtons}
-				${moderatorButtons}
+          <div>
+             ${adminButtons}
+             ${moderatorButtons}
 
-				<button class="btn btn-info me-2" id="search-question-btn">
-					<i class="bi bi-search"></i> Search
-				</button>
+             <button class="btn btn-info me-2" id="search-question-btn">
+                <i class="bi bi-search"></i> Search
+             </button>
 
-				<button class="btn btn-success" id="add-question-btn">
-					<i class="bi bi-plus-circle"></i> Ask new question
-				</button>
-			</div>
+             <button class="btn btn-success" id="add-question-btn">
+                <i class="bi bi-plus-circle"></i> Ask new question
+             </button>
+          </div>
         </div>
         
         <div class="row mb-4">
@@ -102,27 +104,27 @@ function renderExamplePage() {
         </div>
     `;
 
-    // 3. Bezpieczne podpięcie zdarzeń – listenery odpalą się tylko, jeśli dany przycisk wyrenderował się dla zalogowanej roli
-    if (document.getElementById('admin-panel-btn')) {
+    // 3. Bezpieczne podpięcie zdarzeń – listenery odpalą się tylko, jeśli dany przycisk istnieje
+    if (isLoggedIn && document.getElementById('admin-panel-btn')) {
         document.getElementById('admin-panel-btn').addEventListener('click', () => {
             alert('You enter the secret dungeons of the Oracle database as Administrator!');
         });
     }
-    if (document.getElementById('mod-reports-btn')) {
+    if (isLoggedIn && document.getElementById('mod-reports-btn')) {
         document.getElementById('mod-reports-btn').addEventListener('click', () => {
             alert('Opening a list of reported players breaking the tavern rules...');
         });
     }
 
-    // Listener dla wyszukiwania
-	document.getElementById('search-question-btn').addEventListener('click', () => {
-		showSearchModal();
-	});
+    // Listener dla wyszukiwania (dostępny dla każdego)
+    document.getElementById('search-question-btn').addEventListener('click', () => {
+        showSearchModal();
+    });
 
-    // Oryginalny listener dla zielonego przycisku (zawsze aktywny)
-	document.getElementById('add-question-btn').addEventListener('click', () => {
-		showAddQuestionModal();
-	});
+    // Oryginalny listener dla zielonego przycisku (zawsze aktywny strukturalnie, ale modal obsłuży stan)
+    document.getElementById('add-question-btn').addEventListener('click', () => {
+        showAddQuestionModal();
+    });
 
     // Oryginalne wywołanie ładowania danych z mocka
     loadExampleData();
@@ -132,123 +134,98 @@ function renderExamplePage() {
  * Load all forum data
  */
 function loadExampleData() {
-    // Wywołujemy pobieranie pytań (które teraz podstawiliśmy pod getAllItems() w api.js)
     MockApiService.getAllItems()
-		.then(questions => {
-
-			currentQuestions = [...questions];
-
-			renderStatistics(questions);
-			renderTags(questions);
-			renderQuestionsTable(questions);
-		})
+        .then(questions => {
+            currentQuestions = [...questions];
+            renderStatistics(questions);
+            renderTags(questions);
+            renderQuestionsTable(questions);
+        });
 }
 
 function showSearchModal() {
-
     Promise.all([
         MockApiService.getAllItems(),
         ApiService.getAllTags()
     ])
-    .then(([questions, tags]) => {
+        .then(([questions, tags]) => {
 
-        const fields = [
-            {
-                id: 'question',
-                name: 'question',
-                label: 'Question',
-                type: 'text'
-            },
-            {
-                id: 'author',
-                name: 'author',
-                label: 'Author',
-                type: 'text'
-            },
-            {
-                id: 'tags',
-                name: 'tagIds',
-                label: 'Tags',
-                type: 'checkbox-group',
-                options: tags.map(tag => ({
-                    value: tag.id,
-                    label: tag.name
-                }))
-            }
-        ];
-
-        const form = createForm(fields, {
-            id: 'search-form',
-            submitLabel: 'Search',
-            initialValues: {
-                tagIds: []
-            },
-
-            onSubmit: (formData) => {
-
-                let filtered = [...questions];
-
-                if (formData.question?.trim()) {
-
-                    const phrase =
-                        formData.question.toLowerCase();
-
-                    filtered = filtered.filter(q =>
-                        q.title?.toLowerCase().includes(phrase) ||
-                        q.description?.toLowerCase().includes(phrase)
-                    );
+            const fields = [
+                {
+                    id: 'question',
+                    name: 'question',
+                    label: 'Question',
+                    type: 'text'
+                },
+                {
+                    id: 'author',
+                    name: 'author',
+                    label: 'Author',
+                    type: 'text'
+                },
+                {
+                    id: 'tags',
+                    name: 'tagIds',
+                    label: 'Tags',
+                    type: 'checkbox-group',
+                    options: tags.map(tag => ({
+                        value: tag.id,
+                        label: tag.name
+                    }))
                 }
+            ];
 
-                if (formData.author?.trim()) {
+            const form = createForm(fields, {
+                id: 'search-form',
+                submitLabel: 'Search',
+                initialValues: {
+                    tagIds: []
+                },
+                onSubmit: (formData) => {
+                    let filtered = [...questions];
 
-                    const author =
-                        formData.author.toLowerCase();
-
-                    filtered = filtered.filter(q =>
-                        q.author?.username
-                            ?.toLowerCase()
-                            .includes(author)
-                    );
-                }
-
-                if (formData.tagIds?.length) {
-
-                    filtered = filtered.filter(question => {
-
-                        const questionTagIds =
-                            (question.tags || [])
-                                .map(tag => tag.id);
-
-                        return formData.tagIds.every(tagId =>
-                            questionTagIds.includes(tagId)
+                    if (formData.question?.trim()) {
+                        const phrase = formData.question.toLowerCase();
+                        filtered = filtered.filter(q =>
+                            q.title?.toLowerCase().includes(phrase) ||
+                            q.description?.toLowerCase().includes(phrase)
                         );
-                    });
+                    }
+
+                    if (formData.author?.trim()) {
+                        const author = formData.author.toLowerCase();
+                        filtered = filtered.filter(q =>
+                            q.author?.username?.toLowerCase().includes(author)
+                        );
+                    }
+
+                    if (formData.tagIds?.length) {
+                        filtered = filtered.filter(question => {
+                            const questionTagIds = (question.tags || []).map(tag => tag.id);
+                            return formData.tagIds.every(tagId => questionTagIds.includes(tagId));
+                        });
+                    }
+
+                    renderQuestionsTable(filtered);
+                    modal.hide();
+                    showSuccess(`Found ${filtered.length} matching questions`);
                 }
+            });
 
-                renderQuestionsTable(filtered);
+            form.classList.add('search-theme');
 
-                modal.hide();
+            const modal = createModal({
+                title: 'Search Questions',
+                content: form,
+                size: 'large',
+                footer: false
+            });
 
-                showSuccess(
-                    `Found ${filtered.length} matching questions`
-                );
-            }
+            modal.show();
+        })
+        .catch(error => {
+            showError(error.message);
         });
-		
-		form.classList.add('search-theme'); 
-
-        const modal = createModal({
-            title: 'Search Questions',
-            content: form,
-            size: 'large',
-            footer: false
-        });
-
-        modal.show();
-    })
-    .catch(error => {
-        showError(error.message);
-    });
 }
 
 /**
@@ -261,8 +238,6 @@ function renderStatistics(questions) {
     const totalQuestions = questions.length;
     const resolvedQuestions = questions.filter(q => q.status === 'RESOLVED').length;
     const openQuestions = questions.filter(q => q.status === 'OPEN').length;
-
-    // Obliczamy ile pytań posiada przypisane tagi
     const questionsWithTags = questions.filter(q => q.tags && q.tags.length > 0).length;
 
     statsContainer.innerHTML = `
@@ -322,7 +297,6 @@ function renderStatistics(questions) {
 function renderTags(questions) {
     const tagsContainer = document.getElementById('categories-container');
 
-    // Zliczanie wystąpień poszczególnych tagów
     const tagCounts = {};
     questions.forEach(q => {
         if (q.tags && Array.isArray(q.tags)) {
@@ -366,19 +340,19 @@ function renderTags(questions) {
  */
 function renderQuestionsTable(questions) {
     const tableContainer = document.getElementById('products-table-container');
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-    // Definiujemy kolumny tabeli idealnie pod encję pytań forum
     const columns = [
         {
             field: 'id',
             title: 'ID',
             width: '5%',
-			sortable: true,
+            sortable: true,
         },
         {
             field: 'title',
             title: 'Question subject',
-			sortable: true,
+            sortable: true,
             render: (value) => {
                 return `<span class="text-light fw-bold" style="cursor:pointer;">${value}</span>`;
             }
@@ -386,7 +360,7 @@ function renderQuestionsTable(questions) {
         {
             field: 'author',
             title: 'Author / Sojourner',
-			sortable: true,
+            sortable: true,
             width: '15%',
             render: (author) => {
                 if (!author) return '<span class="text-light">Anonim</span>';
@@ -397,7 +371,7 @@ function renderQuestionsTable(questions) {
         {
             field: 'tags',
             title: 'Discussion tags',
-			sortable: true,
+            sortable: true,
             width: '20%',
             render: (tags) => {
                 if (!tags || tags.length === 0) return '<span class="text-light">-</span>';
@@ -407,7 +381,7 @@ function renderQuestionsTable(questions) {
         {
             field: 'status',
             title: 'Status',
-			sortable: true,
+            sortable: true,
             width: '12%',
             render: (status) => {
                 return status === 'RESOLVED' ?
@@ -417,36 +391,37 @@ function renderQuestionsTable(questions) {
         }
     ];
 
-	const table = createTable(questions, {
-		columns,
-		onSort: (field) => {
-			sortQuestions(field);
-		},
+    // Opcje tabeli dopasowywane bezpiecznie pod kątem uprawnień gościa
+    const tableOptions = {
+        columns,
+        onSort: (field) => {
+            sortQuestions(field);
+        },
         onView: (id) => {
             showQuestionDetailsModal(id);
-        },
-        onEdit: (id) => {
-            showEditQuestionModal(id);
-        },
-        onDelete: (id, question) => {
-            confirmDeleteQuestion(id, question.title);
         }
-    });
+    };
+
+    // Guziki akcji pojawią się tylko zalogowanym z odpowiednią rolą
+    if (isLoggedIn) {
+        if (loggedInUser.role === 'ADMIN' || loggedInUser.role === 'MODERATOR') {
+            tableOptions.onEdit = (id) => showEditQuestionModal(id);
+        }
+        if (loggedInUser.role === 'ADMIN') {
+            tableOptions.onDelete = (id, question) => confirmDeleteQuestion(id, question.title);
+        }
+    }
+
+    const table = createTable(questions, tableOptions);
 
     tableContainer.innerHTML = '';
     tableContainer.appendChild(table);
 }
+
 function sortQuestions(field) {
-
     if (currentSortField === field) {
-
-        currentSortDirection =
-            currentSortDirection === 'asc'
-                ? 'desc'
-                : 'asc';
-
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-
         currentSortField = field;
         currentSortDirection = 'asc';
     }
@@ -454,58 +429,43 @@ function sortQuestions(field) {
     const sorted = [...currentQuestions];
 
     sorted.sort((a, b) => {
-
         let valueA;
         let valueB;
 
         switch (field) {
-
             case 'id':
                 valueA = a.id;
                 valueB = b.id;
                 break;
-
             case 'title':
                 valueA = a.title || '';
                 valueB = b.title || '';
                 break;
-
             case 'author':
                 valueA = a.author?.username || '';
                 valueB = b.author?.username || '';
                 break;
-
             case 'status':
                 valueA = a.status || '';
                 valueB = b.status || '';
                 break;
-
             case 'tags':
                 valueA = a.tags?.length || 0;
                 valueB = b.tags?.length || 0;
                 break;
-
             default:
                 return 0;
         }
 
         if (typeof valueA === 'string') {
-
-            const result =
-                valueA.localeCompare(valueB);
-
-            return currentSortDirection === 'asc'
-                ? result
-                : -result;
+            const result = valueA.localeCompare(valueB);
+            return currentSortDirection === 'asc' ? result : -result;
         }
 
-        return currentSortDirection === 'asc'
-            ? valueA - valueB
-            : valueB - valueA;
+        return currentSortDirection === 'asc' ? valueA - valueB : valueB - valueA;
     });
 
     currentQuestions = sorted;
-
     renderQuestionsTable(sorted);
 }
 
@@ -516,8 +476,6 @@ function sortQuestions(field) {
 function showQuestionDetailsModal(id) {
     MockApiService.getItemById(id)
         .then(question => {
-
-            // Renderowanie podglądu zaakceptowanej odpowiedzi, jeśli istnieje (Relacja @OneToOne)
             let acceptedAnswerHTML = `
                 <div class="alert alert-secondary mt-3">
                     <i class="bi bi-info-circle me-2"></i> There is no accepted answer for this question.
@@ -556,7 +514,7 @@ function showQuestionDetailsModal(id) {
                             <strong>Post author:</strong> <code>${question.author ? question.author.username : 'Unknown'}</code>
                         </div>
                         <div class="mb-2">
-                            <strong>Created:</strong> <small class="text-muted">${formatDate ? formatDate(question.createdAt) : question.createdAt}</small>
+                            <strong>Created:</strong> <small class="text-muted">${typeof formatDate === 'function' ? formatDate(question.createdAt) : question.createdAt}</small>
                         </div>
                     </div>
                 </div>
@@ -570,11 +528,14 @@ function showQuestionDetailsModal(id) {
                 ${acceptedAnswerHTML}
             `;
 
+            const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+            const showEditBtn = isLoggedIn && (loggedInUser.role === 'ADMIN' || loggedInUser.role === 'MODERATOR');
+
             const modal = createModal({
                 title: `Forum inquiry details`,
                 content: modalContent,
                 size: 'large',
-                primaryButton: 'Edit content',
+                primaryButton: showEditBtn ? 'Edit content' : null,
                 secondaryButton: 'Close',
                 onPrimary: () => {
                     modal.hide();
@@ -591,101 +552,97 @@ function showQuestionDetailsModal(id) {
 
 /**
  * Show modal to add a new forum question
- */ {
+ */
+function showAddQuestionModal() {
     // 1. Najpierw pytamy API o wszystkie dostępne tagi
     ApiService.getAllTags()
         .then(tags => {
-            // Gdy tagi się załadują, budujemy i pokazujemy modal
             buildAndShowModal(tags);
         })
         .catch(error => {
             console.error('Failed to load tags:', error);
-            // Jeśli baza tagów padnie, nie blokujemy użytkownika – otwieramy z pustą listą []
             buildAndShowModal([]);
         });
 
-    // 2. Przenosimy logikę budowania modala do wewnętrznej funkcji pomocniczej
+    // 2. Wewnętrzna funkcja pomocnicza budująca modal
     function buildAndShowModal(tagsList) {
-		const fields = [
-			{
-				id: 'title',
-				name: 'title',
-				label: 'Question subject (D&D)',
-				type: 'text',
-				placeholder: 'e.g. How does the Fireball spell work in a tight corridor?',
-				required: true
-			},
-			{
-				id: 'description',
-				name: 'description',
-				label: 'Question text (Expand description)',
-				type: 'textarea',
-				placeholder: 'Describe your issue with the rules, mechanics, or plot of the session...',
-				rows: 4,
-				required: true
-			},
-			{
-				id: 'status',
-				name: 'status',
-				label: 'Initial status',
-				type: 'select',
-				required: true,
-				options: [
-					{ value: 'OPEN', label: 'Open (Waiting for responses)' },
-					{ value: 'RESOLVED', label: 'Resolved (Solved)' }
-				]
-			},
-			{ 
-				id: 'tags', 
-				name: 'tagIds',
-				label: 'Tags', 
-				type: 'checkbox-group', 
-				options: tags.map(tag => ({ value: tag.id, label: tag.name })), 
-				emptyText: 'No tags available yet.' 
-			}
-		];
+        const fields = [
+            {
+                id: 'title',
+                name: 'title',
+                label: 'Question subject (D&D)',
+                type: 'text',
+                placeholder: 'e.g. How does the Fireball spell work in a tight corridor?',
+                required: true
+            },
+            {
+                id: 'description',
+                name: 'description',
+                label: 'Question text (Expand description)',
+                type: 'textarea',
+                placeholder: 'Describe your issue with the rules, mechanics, or plot of the session...',
+                rows: 4,
+                required: true
+            },
+            {
+                id: 'status',
+                name: 'status',
+                label: 'Initial status',
+                type: 'select',
+                required: true,
+                options: [
+                    { value: 'OPEN', label: 'Open (Waiting for responses)' },
+                    { value: 'RESOLVED', label: 'Resolved (Solved)' }
+                ]
+            },
+            {
+                id: 'tags',
+                name: 'tagIds',
+                label: 'Tags',
+                type: 'checkbox-group',
+                options: tagsList.map(tag => ({ value: tag.id, label: tag.name })),
+                emptyText: 'No tags available yet.'
+            }
+        ];
 
-		const form = createForm(fields, {
-			id: 'add-question-form',
-			submitLabel: 'Post on the Forum',
-			// Definiujemy startowy status oraz pustą tablicę zaznaczonych tagów
-			initialValues: {
-				status: 'OPEN',
-				tagIds: []
-			},
-			onSubmit: (formData) => {
-				// Doklejamy sztucznego autora
-				formData.author = { id: 1, username: "ZalogowanyBohater", role: "USER" };
-				formData.acceptedAnswer = null;
+        const form = createForm(fields, {
+            id: 'add-question-form',
+            submitLabel: 'Post on the Forum',
+            initialValues: {
+                status: 'OPEN',
+                tagIds: []
+            },
+            onSubmit: (formData) => {
+                formData.author = {
+                    id: 1,
+                    username: localStorage.getItem("loggedInUser") || "ZalogowanyBohater",
+                    role: localStorage.getItem("userRole") || "USER"
+                };
+                formData.acceptedAnswer = null;
 
-				// MAPOWANIE TAGÓW: Przekształcamy tablicę wybranych ID (np.) 
-				// na pełne obiekty tagów, które rozumie Twój MockApiService
-				const selectedIds = formData.tagIds || [];
-				formData.tags = tags.filter(tag => selectedIds.includes(tag.id));
-				
-				// Usuwamy surowe tagIds z obiektu wysyłki, jeśli backend tego nie potrzebuje
-				delete formData.tagIds;
+                const selectedIds = formData.tagIds || [];
+                formData.tags = tagsList.filter(tag => selectedIds.includes(tag.id));
 
-				modal.hide();
+                delete formData.tagIds;
+                modal.hide();
 
-				// Wywołujemy mockowe zapisanie do tablicy
-				MockApiService.createItem(formData)
-					.then(() => {
-						showSuccess('The question has been successfully added to the inn database!');
-						loadExampleData();
-					})
-					.catch(error => {
-						showError(`Failed to add entry: ${error.message}`);
-					});
-			}
-		});
+                MockApiService.createItem(formData)
+                    .then(() => {
+                        showSuccess('The question has been successfully added to the inn database!');
+                        loadExampleData();
+                    })
+                    .catch(error => {
+                        showError(`Failed to add entry: ${error.message}`);
+                    });
+            }
+        });
 
-		const modal = createModal({
-			title: 'Ask new question to the RPG community',
-			content: form,
-			size: 'large',
-			footer: false
-		});
+        const modal = createModal({
+            title: 'Ask new question to the RPG community',
+            content: form,
+            size: 'large',
+            footer: false
+        });
 
         modal.show();
     }
@@ -732,7 +689,6 @@ function showEditQuestionModal(id) {
                 submitLabel: 'Save changes',
                 initialValues: question,
                 onSubmit: (formData) => {
-                    // Zachowujemy oryginalnego autora, tagi i odpowiedzi przy edycji
                     const updatedData = {
                         ...question,
                         title: formData.title,
