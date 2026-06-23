@@ -57,18 +57,15 @@ function renderHomePage() {
                                     <div class="card-body">
                                         <h5 class="card-title">About This Template</h5>
                                         <p class="card-text">
-                                            This template is designed to help students quickly get started with 
-                                            frontend development that connects to their Spring REST API backend.
-                                            It uses plain JavaScript with minimal dependencies to keep things simple.
+                                            This site was created to help you find all the questions you might have about your D&D campaign!
                                         </p>
                                         <p>
                                             Key features:
                                         </p>
                                         <ul class="text-start">
-                                            <li>View, create, edit and delete items through a REST API</li>
-                                            <li>Reusable components for forms, tables and modals</li>
-                                            <li>Simple routing system for navigation between pages</li>
-                                            <li>Bootstrap for responsive styling</li>
+                                            <li>Ask and answer questions about your D&D campaign!</li>
+                                            <li>Search through our database of questions!</li>
+                                            <li>Find other D&D players!</li>
                                         </ul>
                                     </div>
                                 </div>

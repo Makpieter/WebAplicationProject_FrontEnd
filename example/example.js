@@ -41,12 +41,12 @@ function renderExamplePage() {
     // 2. Składamy strukturę strony – oryginalne elementy zostają nienaruszone, dodajemy tylko nowe zmienne obok zielonego przycisku
     appContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Forum Pytań D&D</h2>
+            <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Question Forum D&D</h2>
             <div>
                 ${adminButtons}
                 ${moderatorButtons}
                 <button class="btn btn-success" id="add-question-btn">
-                    <i class="bi bi-plus-circle"></i> Zadaj nowe pytanie
+                    <i class="bi bi-plus-circle"></i> Ask new question
                 </button>
             </div>
         </div>
@@ -55,20 +55,20 @@ function renderExamplePage() {
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Statystyki Forum</h5>
+                        <h5 class="mb-0">Forum Statistics</h5>
                     </div>
                     <div class="card-body">
-                        <div id="stats-container">Ładowanie statystyk...</div>
+                        <div id="stats-container">Loading statistics...</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">Popularne Tagi</h5>
+                        <h5 class="mb-0">Popular Tags</h5>
                     </div>
                     <div class="card-body">
-                        <div id="categories-container">Ładowanie tagów...</div>
+                        <div id="categories-container">Loading tags...</div>
                     </div>
                 </div>
             </div>
@@ -76,15 +76,15 @@ function renderExamplePage() {
         
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Wszystkie pytania społeczności</h5>
+                <h5 class="mb-0">All community questions</h5>
             </div>
             <div class="card-body">
                 <div id="products-table-container">
                     <div class="text-center py-5">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Ładowanie...</span>
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p>Pobieranie wątków z bazy karczmy...</p>
+                        <p>Getting threads from the tavern...</p>
                     </div>
                 </div>
             </div>
@@ -94,12 +94,12 @@ function renderExamplePage() {
     // 3. Bezpieczne podpięcie zdarzeń – listenery odpalą się tylko, jeśli dany przycisk wyrenderował się dla zalogowanej roli
     if (document.getElementById('admin-panel-btn')) {
         document.getElementById('admin-panel-btn').addEventListener('click', () => {
-            alert('Wchodzisz do tajnych lochów bazy danych Oracle jako Administrator!');
+            alert('You enter the secret dungeons of the Oracle database as Administrator!');
         });
     }
     if (document.getElementById('mod-reports-btn')) {
         document.getElementById('mod-reports-btn').addEventListener('click', () => {
-            alert('Otwieranie listy zgłoszonych graczy łamiących regulamin karczmy...');
+            alert('Opening a list of reported players breaking the tavern rules...');
         });
     }
 
@@ -150,7 +150,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-journal-text"></i>
                     </div>
                     <div>
-                        <div class="text-white small">Wszystkich</div>
+                        <div class="text-white small">Wszystkie</div>
                         <div class="fw-bold">${totalQuestions}</div>
                     </div>
                 </div>
@@ -161,7 +161,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-check2-circle"></i>
                     </div>
                     <div>
-                        <div class="text-white small">Rozwiązane</div>
+                        <div class="text-white small">Solved</div>
                         <div class="fw-bold">${resolvedQuestions}</div>
                     </div>
                 </div>
@@ -172,7 +172,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-hourglass-split"></i>
                     </div>
                     <div>
-                        <div class="text-white small">Otwarte</div>
+                        <div class="text-white small">Open</div>
                         <div class="fw-bold">${openQuestions}</div>
                     </div>
                 </div>
@@ -183,7 +183,7 @@ function renderStatistics(questions) {
                         <i class="bi bi-tags"></i>
                     </div>
                     <div>
-                        <div class="text-white small">Otagowane</div>
+                        <div class="text-white small">Tagged</div>
                         <div class="fw-bold">${questionsWithTags}</div>
                     </div>
                 </div>
@@ -216,7 +216,7 @@ function renderTags(questions) {
 
     let tagsHTML = '<div class="row">';
     if (sortedTags.length === 0) {
-        tagsHTML += '<div class="col-12 text-muted">Brak tagów do wyświetlenia</div>';
+        tagsHTML += '<div class="col-12 text-muted">No tags to display</div>';
     } else {
         sortedTags.forEach(([tagName, count]) => {
             tagsHTML += `
@@ -253,14 +253,14 @@ function renderQuestionsTable(questions) {
         },
         {
             field: 'title',
-            title: 'Temat pytania',
+            title: 'Question subject',
             render: (value) => {
                 return `<span class="text-light fw-bold" style="cursor:pointer;">${value}</span>`;
             }
         },
         {
             field: 'author',
-            title: 'Autor / Karczmarz',
+            title: 'Author / Sojourner',
             width: '15%',
             render: (author) => {
                 if (!author) return '<span class="text-light">Anonim</span>';
@@ -270,7 +270,7 @@ function renderQuestionsTable(questions) {
         },
         {
             field: 'tags',
-            title: 'Tagi dyskusji',
+            title: 'Discussion tags',
             width: '20%',
             render: (tags) => {
                 if (!tags || tags.length === 0) return '<span class="text-light">-</span>';
@@ -283,8 +283,8 @@ function renderQuestionsTable(questions) {
             width: '12%',
             render: (status) => {
                 return status === 'RESOLVED' ?
-                    '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Rozwiązane</span>' :
-                    '<span class="badge bg-warning text-dark"><i class="bi bi-lightning-charge me-1"></i>Otwarte</span>';
+                    '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Solved</span>' :
+                    '<span class="badge bg-warning text-dark"><i class="bi bi-lightning-charge me-1"></i>Open</span>';
             }
         }
     ];
@@ -318,7 +318,7 @@ function showQuestionDetailsModal(id) {
             // Renderowanie podglądu zaakceptowanej odpowiedzi, jeśli istnieje (Relacja @OneToOne)
             let acceptedAnswerHTML = `
                 <div class="alert alert-secondary mt-3">
-                    <i class="bi bi-info-circle me-2"></i> Brak zaakceptowanej odpowiedzi dla tego pytania.
+                    <i class="bi bi-info-circle me-2"></i> There is no accepted answer for this question.
                 </div>
             `;
 
@@ -340,28 +340,28 @@ function showQuestionDetailsModal(id) {
                 <div class="row">
                     <div class="col-md-7">
                         <div class="mb-2">
-                            <strong>Identyfikator (ID):</strong> <span class="badge bg-light text-dark border">${question.id}</span>
+                            <strong>ID:</strong> <span class="badge bg-light text-dark border">${question.id}</span>
                         </div>
                         <div class="mb-2">
-                            <strong>Temat wątku:</strong> <br/> <h5 class="text-primary mt-1">${question.title}</h5>
+                            <strong>Thread subject:</strong> <br/> <h5 class="text-primary mt-1">${question.title}</h5>
                         </div>
                     </div>
                     <div class="col-md-5 border-start">
                         <div class="mb-2">
-                            <strong>Status wpisu:</strong> ${question.status === 'RESOLVED' ? '<span class="badge bg-success">Rozwiązane</span>' : '<span class="badge bg-warning text-dark">Otwarte</span>'}
+                            <strong>Post status:</strong> ${question.status === 'RESOLVED' ? '<span class="badge bg-success">Solved</span>' : '<span class="badge bg-warning text-dark">Open</span>'}
                         </div>
                         <div class="mb-2">
-                            <strong>Autor wpisu:</strong> <code>${question.author ? question.author.username : 'Nieznany'}</code>
+                            <strong>Post author:</strong> <code>${question.author ? question.author.username : 'Nieznany'}</code>
                         </div>
                         <div class="mb-2">
-                            <strong>Stworzono:</strong> <small class="text-muted">${formatDate ? formatDate(question.createdAt) : question.createdAt}</small>
+                            <strong>Created:</strong> <small class="text-muted">${formatDate ? formatDate(question.createdAt) : question.createdAt}</small>
                         </div>
                     </div>
                 </div>
                 <hr class="my-2"/>
                 <div class="row">
                     <div class="col-12">
-                        <strong>Treść pytania / Opis problemu:</strong>
+                        <strong>Question content / Problem description:</strong>
                         <div class="p-3 bg-light rounded border mt-1 mb-2" style="white-space: pre-wrap;">${question.description}</div>
                     </div>
                 </div>
@@ -369,11 +369,11 @@ function showQuestionDetailsModal(id) {
             `;
 
             const modal = createModal({
-                title: `Szczegóły zapytania forum`,
+                title: `Forum inquiry details`,
                 content: modalContent,
                 size: 'large',
-                primaryButton: 'Edytuj treść',
-                secondaryButton: 'Zamknij',
+                primaryButton: 'Edit content',
+                secondaryButton: 'Close',
                 onPrimary: () => {
                     modal.hide();
                     showEditQuestionModal(id);
@@ -383,7 +383,7 @@ function showQuestionDetailsModal(id) {
             modal.show();
         })
         .catch(error => {
-            showError(`Nie udało się otworzyć pytania: ${error.message}`);
+            showError(`Failed to open question: ${error.message}`);
         });
 }
 
@@ -395,36 +395,36 @@ function showAddQuestionModal() {
         {
             id: 'title',
             name: 'title',
-            label: 'Temat pytania (D&D)',
+            label: 'Question subject (D&D)',
             type: 'text',
-            placeholder: 'np. Jak działa czar Fireball w ciasnym korytarzu?',
+            placeholder: 'e.g. How does the Fireball spell work in a tight corridor?',
             required: true
         },
         {
             id: 'description',
             name: 'description',
-            label: 'Treść pytania (Rozwiń opis)',
+            label: 'Question text (Expand description)',
             type: 'textarea',
-            placeholder: 'Opisz swój problem z zasadami, mechaniką lub fabułą sesji...',
+            placeholder: 'Describe your issue with the rules, mechanics, or plot of the session...',
             rows: 4,
             required: true
         },
         {
             id: 'status',
             name: 'status',
-            label: 'Status początkowy',
+            label: 'Initial status',
             type: 'select',
             required: true,
             options: [
-                { value: 'OPEN', label: 'Otwarte (Oczekuje na odpowiedzi)' },
-                { value: 'RESOLVED', label: 'Rozwiązane (Zakończone)' }
+                { value: 'OPEN', label: 'Open (Waiting for responses)' },
+                { value: 'RESOLVED', label: 'Resolved (Solved)' }
             ]
         }
     ];
 
     const form = createForm(fields, {
         id: 'add-question-form',
-        submitLabel: 'Opublikuj na Forum',
+        submitLabel: 'Post on the Forum',
         initialValues: {
             status: 'OPEN'
         },
@@ -439,17 +439,17 @@ function showAddQuestionModal() {
             // Wywołujemy mockowe zapisanie do tablicy
             MockApiService.createItem(formData)
                 .then(() => {
-                    showSuccess('Pytanie zostało pomyślnie dodane do bazy karczmy!');
+                    showSuccess('The question has been successfully added to the inn database!');
                     loadExampleData();
                 })
                 .catch(error => {
-                    showError(`Nie udało się dodać wpisu: ${error.message}`);
+                    showError(`Failed to add entry: ${error.message}`);
                 });
         }
     });
 
     const modal = createModal({
-        title: 'Zadaj nowe pytanie społeczności RPG',
+        title: 'Ask new question to the RPG community',
         content: form,
         size: 'large',
         footer: false
@@ -469,14 +469,14 @@ function showEditQuestionModal(id) {
                 {
                     id: 'title',
                     name: 'title',
-                    label: 'Temat pytania',
+                    label: 'Question subject',
                     type: 'text',
                     required: true
                 },
                 {
                     id: 'description',
                     name: 'description',
-                    label: 'Treść pytania',
+                    label: 'Question content',
                     type: 'textarea',
                     rows: 4,
                     required: true
@@ -484,19 +484,19 @@ function showEditQuestionModal(id) {
                 {
                     id: 'status',
                     name: 'status',
-                    label: 'Status wątku',
+                    label: 'Thread status',
                     type: 'select',
                     required: true,
                     options: [
-                        { value: 'OPEN', label: 'Otwarte' },
-                        { value: 'RESOLVED', label: 'Rozwiązane' }
+                        { value: 'OPEN', label: 'Open' },
+                        { value: 'RESOLVED', label: 'Solved' }
                     ]
                 }
             ];
 
             const form = createForm(fields, {
                 id: 'edit-question-form',
-                submitLabel: 'Zapisz zmiany',
+                submitLabel: 'Save changes',
                 initialValues: question,
                 onSubmit: (formData) => {
                     // Zachowujemy oryginalnego autora, tagi i odpowiedzi przy edycji
@@ -511,17 +511,17 @@ function showEditQuestionModal(id) {
 
                     MockApiService.updateItem(id, updatedData)
                         .then(() => {
-                            showSuccess('Modyfikacja posta zapisana pomyślnie!');
+                            showSuccess('Post modification saved successfully!');
                             loadExampleData();
                         })
                         .catch(error => {
-                            showError(`Błąd zapisu modyfikacji: ${error.message}`);
+                            showError(`Error saving modifications: ${error.message}`);
                         });
                 }
             });
 
             const modal = createModal({
-                title: `Edycja wątku ID: ${question.id}`,
+                title: `Edit thread ID: ${question.id}`,
                 content: form,
                 size: 'large',
                 footer: false
@@ -530,7 +530,7 @@ function showEditQuestionModal(id) {
             modal.show();
         })
         .catch(error => {
-            showError(`Nie udało się wczytać danych do edycji: ${error.message}`);
+            showError(`Failed to load data for editing: ${error.message}`);
         });
 }
 
@@ -540,16 +540,16 @@ function showEditQuestionModal(id) {
  * @param {string} title - Question title
  */
 function confirmDeleteQuestion(id, title) {
-    confirmAction(`Czy na pewno chcesz bezpowrotnie usunąć wątek: "${title}"?`)
+    confirmAction(`Are you sure you want to permanently delete the thread: "${title}"?`)
         .then(confirmed => {
             if (confirmed) {
                 MockApiService.deleteItem(id)
                     .then(() => {
-                        showSuccess('Wątek został pomyślnie usunięty z księgi skarg.');
+                        showSuccess('The thread has been successfully removed from the complaint book.');
                         loadExampleData();
                     })
                     .catch(error => {
-                        showError(`Nie udało się skasować wpisu: ${error.message}`);
+                        showError(`Failed to delete entry: ${error.message}`);
                     });
             }
         });

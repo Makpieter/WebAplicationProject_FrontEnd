@@ -11,21 +11,34 @@ const DB_VERSION = 2; // bump this number to force a reseed
 
 // ─── Default tags ─────────────────────────────────────────────────────────────
 const DEFAULT_TAGS = [
-    { id: 1,  name: 'Rules',         description: 'Questions about official D&D rules and rulings' },
-    { id: 2,  name: 'Combat',        description: 'Tactics, actions, reactions, and combat mechanics' },
-    { id: 3,  name: 'Magic',         description: 'Spells, spell slots, concentration, and magic items' },
-    { id: 4,  name: 'Character',     description: 'Character creation, classes, subclasses, and backgrounds' },
-    { id: 5,  name: 'Races',         description: 'Playable races and their traits' },
-    { id: 6,  name: 'Monsters',      description: 'Monster stat blocks, abilities, and lore' },
-    { id: 7,  name: 'Worldbuilding', description: 'Setting, lore, and narrative world design' },
-    { id: 8,  name: 'DM Advice',     description: 'Guidance and tips for Dungeon Masters' },
-    { id: 9,  name: 'Player Advice', description: 'Guidance and tips for players' },
-    { id: 10, name: 'Items',         description: 'Weapons, armour, and non-magical equipment' },
-    { id: 11, name: 'Magic Items',   description: 'Attunement, identification, and specific magic items' },
-    { id: 12, name: 'Feats',         description: 'Feat selection and interactions' },
-    { id: 13, name: 'Multiclassing', description: 'Multiclass rules, combinations, and builds' },
-    { id: 14, name: 'Skills',        description: 'Skill checks, proficiency, and ability scores' },
-    { id: 15, name: 'Exploration',   description: 'Travel, navigation, traps, and environment' }
+    { id: 1,  name: 'Rules',		description: 'Questions about official D&D rules and rulings' },
+    { id: 2,  name: 'Combat',		description: 'Tactics, actions, reactions, and combat mechanics' },
+    { id: 3,  name: 'Magic',		description: 'Spells, spell slots, concentration, and magic items' },
+    { id: 4,  name: 'Character',	description: 'Character creation, classes, subclasses, and backgrounds' },
+    { id: 5,  name: 'Races',		description: 'Playable races and their traits' },
+    { id: 6,  name: 'Monsters',		description: 'Monster stat blocks, abilities, and lore' },
+    { id: 7,  name: 'Worldbuilding',description: 'Setting, lore, and narrative world design' },
+    { id: 8,  name: 'DM Advice',	description: 'Guidance and tips for Dungeon Masters' },
+    { id: 9,  name: 'Player Advice',description: 'Guidance and tips for players' },
+    { id: 10, name: 'Items',		description: 'Weapons, armour, and non-magical equipment' },
+    { id: 11, name: 'Magic Items',	description: 'Attunement, identification, and specific magic items' },
+    { id: 12, name: 'Feats',		description: 'Feat selection and interactions' },
+    { id: 13, name: 'Multiclassing',description: 'Multiclass rules, combinations, and builds' },
+    { id: 14, name: 'Skills',		description: 'Skill checks, proficiency, and ability scores' },
+    { id: 15, name: 'Exploration',	description: 'Travel, navigation, traps, and environment' },,
+    { id: 16, name: '5e (2024)',	description: 'D&D 5th Edition (2024 Revision)' },
+    { id: 17, name: '5e',        	description: 'D&D 5th Edition (2014)' },
+    { id: 18, name: '4e',			description: 'D&D 4th Edition (2008)' },
+    { id: 19, name: '3.5e',			description: 'D&D 3.5 Edition (2003)' },
+    { id: 20, name: '3e',			description: 'D&D 3rd Edition (2000)' },
+    { id: 21, name: '2e',			description: 'Advanced D&D 2nd Edition (1989)' },
+    { id: 22, name: 'Adv 1e',		description: 'Advanced D&D 1st Edition' },
+    { id: 23, name: '1e',			description: 'Original D&D & Basic D&D (1974-1994)' },
+    { id: 24, name: 'Spells',		description: '' },
+    { id: 25, name: 'Multiclassing',description: '' },
+    { id: 26, name: 'Initiative',	description: '' },
+    { id: 27, name: 'PL',			description: '' },
+    { id: 28, name: 'ENG',		description: '' }
 ];
 
 // ─── Seed questions ───────────────────────────────────────────────────────────
@@ -41,7 +54,8 @@ const DEFAULT_QUESTIONS = [
         tags: [
             { id: 1,  name: "Rules" },
             { id: 4,  name: "Character" },
-            { id: 13, name: "Multiclassing" }
+            { id: 13, name: "Multiclassing" },
+            { id: 27, name: "PL" }
         ],
         acceptedAnswer: {
             id: 101,
@@ -60,7 +74,8 @@ const DEFAULT_QUESTIONS = [
         tags: [
             { id: 3,  name: "Magic" },
             { id: 4,  name: "Character" },
-            { id: 9,  name: "Player Advice" }
+            { id: 9,  name: "Player Advice" },
+            { id: 27, name: "PL" }
         ],
         acceptedAnswer: null
     },
@@ -74,7 +89,8 @@ const DEFAULT_QUESTIONS = [
         author: { id: 88, username: "SfrustrowanyDM", role: "USER" },
         tags: [
             { id: 8,  name: "DM Advice" },
-            { id: 11, name: "Magic Items" }
+            { id: 11, name: "Magic Items" },
+            { id: 27, name: "PL" }
         ],
         acceptedAnswer: null
     }

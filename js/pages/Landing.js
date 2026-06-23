@@ -12,7 +12,7 @@ function renderLandingPage() {
                 <div class="card shadow-sm">
                     <div class="card-body text-center py-5">
                         <h2 class="mb-2">DnD Q&A Center</h2>
-                        <p class="text-muted mb-5">Welcome! Please log in or create an account to continue.</p>
+                        <p class="text-vlight mb-5">Welcome! Please log in or create an account to continue.</p>
 
                         <div class="d-grid gap-3">
                             <button class="btn btn-primary btn-lg" id="go-login-btn">

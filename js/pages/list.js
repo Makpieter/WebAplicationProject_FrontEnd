@@ -10,11 +10,11 @@ function renderListPage() {
 
     appContainer.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Forum Pytań D&amp;D</h2>
+            <h2><i class="bi bi-chat-square-text-fill text-primary me-2"></i>Question Forum D&amp;D</h2>
             <div>
                 <span class="me-3 text-muted small">Zalogowany jako: <strong>${loggedInUser}</strong></span>
                 <button class="btn btn-success" id="add-question-btn">
-                    <i class="bi bi-plus-circle"></i> Zadaj nowe pytanie
+                    <i class="bi bi-plus-circle"></i> Ask new question
                 </button>
             </div>
         </div>
@@ -23,20 +23,20 @@ function renderListPage() {
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Statystyki Forum</h5>
+                        <h5 class="mb-0">Forum Statistics</h5>
                     </div>
                     <div class="card-body">
-                        <div id="stats-container">Ładowanie statystyk...</div>
+                        <div id="stats-container">Loading statistics...</div>
                     </div>
                 </div>
             </div>
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">Popularne Tagi</h5>
+                        <h5 class="mb-0">Popular Tags</h5>
                     </div>
                     <div class="card-body">
-                        <div id="tags-container">Ładowanie tagów...</div>
+                        <div id="tags-container">Loading tags...</div>
                     </div>
                 </div>
             </div>
@@ -44,15 +44,15 @@ function renderListPage() {
 
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">Wszystkie pytania społeczności</h5>
+                <h5 class="mb-0">All community questions</h5>
             </div>
             <div class="card-body">
                 <div id="items-table-container">
                     <div class="text-center py-5">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Ładowanie...</span>
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p>Pobieranie wątków z bazy karczmy...</p>
+                        <p>Getting threads from the inn...</p>
                     </div>
                 </div>
             </div>
@@ -95,25 +95,25 @@ function renderStatistics(questions) {
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary text-white rounded p-2 me-2"><i class="bi bi-journal-text"></i></div>
-                    <div><div class="text-muted small">Wszystkich</div><div class="fw-bold">${total}</div></div>
+                    <div><div class="text-muted small">Wszystkie</div><div class="fw-bold">${total}</div></div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-success text-white rounded p-2 me-2"><i class="bi bi-check2-circle"></i></div>
-                    <div><div class="text-muted small">Rozwiązane</div><div class="fw-bold">${resolved}</div></div>
+                    <div><div class="text-muted small">Solved</div><div class="fw-bold">${resolved}</div></div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-warning text-white rounded p-2 me-2"><i class="bi bi-hourglass-split"></i></div>
-                    <div><div class="text-muted small">Otwarte</div><div class="fw-bold">${open}</div></div>
+                    <div><div class="text-muted small">Open</div><div class="fw-bold">${open}</div></div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-info text-white rounded p-2 me-2"><i class="bi bi-tags"></i></div>
-                    <div><div class="text-muted small">Otagowane</div><div class="fw-bold">${tagged}</div></div>
+                    <div><div class="text-muted small">Tagged</div><div class="fw-bold">${tagged}</div></div>
                 </div>
             </div>
         </div>
@@ -132,7 +132,7 @@ function renderTagCloud(questions) {
 
     let html = '<div class="row">';
     if (sorted.length === 0) {
-        html += '<div class="col-12 text-muted">Brak tagów do wyświetlenia</div>';
+        html += '<div class="col-12 text-muted">No tags to display</div>';
     } else {
         sorted.forEach(([name, count]) => {
             html += `
@@ -159,7 +159,7 @@ function renderQuestionsTable(questions) {
         { field: 'id', title: 'ID', width: '5%' },
         {
             field: 'title',
-            title: 'Temat pytania',
+            title: 'Question subject',
             render: (value) => `<span class="text-primary fw-bold" style="cursor:pointer;">${value}</span>`
         },
         {
@@ -191,8 +191,8 @@ function renderQuestionsTable(questions) {
             title: 'Status',
             width: '12%',
             render: (status) => status === 'RESOLVED'
-                ? '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Rozwiązane</span>'
-                : '<span class="badge bg-warning text-dark"><i class="bi bi-lightning-charge me-1"></i>Otwarte</span>'
+                ? '<span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Solved</span>'
+                : '<span class="badge bg-warning text-dark"><i class="bi bi-lightning-charge me-1"></i>Open</span>'
         }
     ];
 
@@ -262,8 +262,8 @@ function showQuestionDetailsModal(id) {
                         <div class="mb-2">
                             <strong>Status:</strong>
                             ${question.status === 'RESOLVED'
-                                ? '<span class="badge bg-success">Rozwiązane</span>'
-                                : '<span class="badge bg-warning text-dark">Otwarte</span>'}
+                                ? '<span class="badge bg-success">Solved</span>'
+                                : '<span class="badge bg-warning text-dark">Open</span>'}
                         </div>
                         <div class="mb-2">
                             <strong>Autor:</strong>
@@ -286,7 +286,7 @@ function showQuestionDetailsModal(id) {
                 content,
                 size: 'large',
                 primaryButton: 'Edytuj',
-                secondaryButton: 'Zamknij',
+                secondaryButton: 'Close',
                 onPrimary: () => { modal.hide(); showEditQuestionModal(id); }
             });
             modal.show();
@@ -301,14 +301,14 @@ function showAddQuestionModal() {
             const fields = [
                 {
                     id: 'title', name: 'title',
-                    label: 'Temat pytania',
+                    label: 'Question subject',
                     type: 'text',
-                    placeholder: 'np. Jak działa czar Fireball w ciasnym korytarzu?',
+                    placeholder: 'e.g. How does the Fireball spell work in a tight corridor?',
                     required: true
                 },
                 {
                     id: 'description', name: 'description',
-                    label: 'Treść pytania',
+                    label: 'Question content',
                     type: 'textarea',
                     placeholder: 'Opisz swój problem z zasadami, mechaniką lub fabułą...',
                     rows: 4,
@@ -320,8 +320,8 @@ function showAddQuestionModal() {
                     type: 'select',
                     required: true,
                     options: [
-                        { value: 'OPEN',     label: 'Otwarte' },
-                        { value: 'RESOLVED', label: 'Rozwiązane' }
+                        { value: 'OPEN',     label: 'Open' },
+                        { value: 'RESOLVED', label: 'Solved' }
                     ]
                 },
                 {
@@ -349,7 +349,7 @@ function showAddQuestionModal() {
             });
 
             const modal = createModal({
-                title: 'Zadaj nowe pytanie',
+                title: 'Ask new question',
                 content: form,
                 size: 'large',
                 footer: false
@@ -366,12 +366,12 @@ function showEditQuestionModal(id) {
             const fields = [
                 {
                     id: 'title', name: 'title',
-                    label: 'Temat pytania',
+                    label: 'Question subject',
                     type: 'text', required: true
                 },
                 {
                     id: 'description', name: 'description',
-                    label: 'Treść pytania',
+                    label: 'Question content',
                     type: 'textarea', rows: 4, required: true
                 },
                 {
@@ -380,8 +380,8 @@ function showEditQuestionModal(id) {
                     type: 'select',
                     required: true,
                     options: [
-                        { value: 'OPEN',     label: 'Otwarte' },
-                        { value: 'RESOLVED', label: 'Rozwiązane' }
+                        { value: 'OPEN',     label: 'Open' },
+                        { value: 'RESOLVED', label: 'Solved' }
                     ]
                 },
                 {
@@ -395,7 +395,7 @@ function showEditQuestionModal(id) {
 
             const form = createForm(fields, {
                 id: 'edit-question-form',
-                submitLabel: 'Zapisz zmiany',
+                submitLabel: 'Save changes',
                 initialValues: {
                     ...question,
                     tagIds: (question.tags || []).map(t => t.id)

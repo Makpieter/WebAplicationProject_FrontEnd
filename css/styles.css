@@ -7,6 +7,7 @@
   --text-light: #a5d6a7;
   --text-def: #c8e6c9;
   --text-glow: #81c784;
+  --text-avg: #228B22;
   --text-dark: #006400;
 
   /* SHADOW */
@@ -179,5 +180,51 @@ nav {
 /* Etykiety pól (label) oraz opcje checkboxów w formularzu dodawania na czarno */
 #add-question-form label,
 #add-question-form .form-check-label {
+    color: var(--text-dark) !important;
+}
+
+/* Styl dla okna szczegółów pytania */
+.modal:has(h5.text-primary) .modal-body,
+.modal:has(h5.text-primary) .modal-body strong,
+.modal:has(h5.text-primary) .modal-body div,
+.modal:has(h5.text-primary) .modal-body p {
+    color: var(--text-avg) !important;
+}
+
+/* Wnętrze jasnego bloku z opisem problemu */
+.modal:has(h5.text-primary) .bg-light {
+    color: var(--text-dark) !important;
+}
+
+/* Tytuł w oknie szczegółów pytania na czarno */
+.modal:has(h5.text-primary) .modal-title {
+    color: var(--text-dark) !important;
+}
+
+/* Wymuszenie białego tekstu dla nagłówka zaakceptowanej odpowiedzi i jej autora */
+.modal-body .card.border-success .card-header,
+.modal-body .card.border-success .card-header span,
+.modal-body .card.border-success .card-header strong {
+    color: var(--text-vlight) !important;
+}
+/* Etykiety (ID:, Thread subject:, Question content...) na głęboką czerń */
+.modal:has(h5.text-primary) .modal-body strong {
+    color: var(--text-dark) !important;
+}
+
+/* Sam tytuł pytania (Thread subject text) na mocniejszy, ciemniejszy kolor */
+.modal:has(h5.text-primary) h5.text-primary {
+    color: var(--text-dark) !important;
+    font-weight: 800 !important; /* Dodatkowe pogrubienie */
+}
+
+/* Tytuł okna edycji (Edit thread ID: ...) na ciemnozielono */
+.modal:has(#edit-question-form) .modal-title,
+.modal:has(#edit-question-form) .modal-header h5 {
+    color: var(--text-dark) !important;
+}
+
+/* Etykiety pól (Question subject, Question content, Thread status) na ciemnozielono */
+#edit-question-form label {
     color: var(--text-dark) !important;
 }
