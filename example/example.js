@@ -51,7 +51,7 @@ function renderExamplePage() {
                 <button class="btn btn-success" id="add-question-btn">
                     <i class="bi bi-plus-circle"></i> Ask a new question
                 </button>` : `
-                <span class="text-muted me-2 small">
+                <span class="text-light me-2 small">
                     <a href="#" onclick="navigateTo('login')">Log in</a>, to ask a question
                 </span>`}
             </div>
@@ -256,7 +256,7 @@ function renderQuestionsTable(questions) {
             render: author => {
                 if (!author) return '<span class="text-muted">Anonim</span>';
                 const badge = author.role === 'MODERATOR' ? 'bg-danger' :
-                              author.role === 'ADMIN'     ? 'bg-danger' : 'bg-dark';
+                    author.role === 'ADMIN'     ? 'bg-danger' : 'bg-dark';
                 return `<div><strong>${author.username}</strong><br>
                     <span class="badge ${badge} xsmall">${author.role}</span></div>`;
             }
@@ -385,16 +385,16 @@ function refreshDetailModal(id) {
         MockApiService.getItemById(id),
         MockApiService.getAnswersForQuestion(id)
     ])
-    .then(([question, answers]) => {
-        if (activeDetailModal) {
-            activeDetailModal.setContent(buildDetailContent(question, answers));
-            activeDetailModal.setTitle(`Question #${question.id}`);
-        }
-    })
-    .catch(err => {
-        if (activeDetailModal)
-            activeDetailModal.setContent(`<div class="alert alert-danger">${err.message}</div>`);
-    });
+        .then(([question, answers]) => {
+            if (activeDetailModal) {
+                activeDetailModal.setContent(buildDetailContent(question, answers));
+                activeDetailModal.setTitle(`Question #${question.id}`);
+            }
+        })
+        .catch(err => {
+            if (activeDetailModal)
+                activeDetailModal.setContent(`<div class="alert alert-danger">${err.message}</div>`);
+        });
 }
 
 function buildDetailContent(question, answers) {
@@ -523,8 +523,8 @@ function buildDetailContent(question, answers) {
             <div class="col-md-5 border-start">
                 <div class="mb-2"><strong>Status:</strong>
                     ${question.status === 'RESOLVED'
-                        ? '<span class="badge bg-success">Solved</span>'
-                        : '<span class="badge bg-warning text-dark">Open</span>'}
+        ? '<span class="badge bg-success">Solved</span>'
+        : '<span class="badge bg-warning text-dark">Open</span>'}
                 </div>
                 <div class="mb-2"><strong>Author:</strong>
                     <code>${question.author ? question.author.username : 'Unknown'}</code>

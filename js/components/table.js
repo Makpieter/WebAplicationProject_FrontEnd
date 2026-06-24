@@ -12,7 +12,7 @@
 function createTable(data, options) {
     const defaultOptions = {
         columns: [],
-        tableClass: 'table table-striped table-hover align-middle', 
+        tableClass: 'table table-striped table-hover align-middle',
         idField: 'id',
         actions: {
             view: true,
@@ -21,7 +21,10 @@ function createTable(data, options) {
         },
         onView: null,
         onEdit: null,
-        onDelete: null
+        onDelete: null,
+        onSort: null,          // function(field) — called when a sortable header is clicked
+        sortField: null,       // currently sorted field name (for icon highlighting)
+        sortDirection: 'asc'  // 'asc' or 'desc'
     };
 
     const tableOptions = { ...defaultOptions, ...options };
@@ -32,42 +35,47 @@ function createTable(data, options) {
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
 
-	tableOptions.columns.forEach(column => {
+    tableOptions.columns.forEach(column => {
 
-		const th = document.createElement('th');
+        const th = document.createElement('th');
 
-		th.textContent = column.title;
+        th.textContent = column.title;
 
-		if (column.width) {
-			th.style.width = column.width;
-		}
+        if (column.width) {
+            th.style.width = column.width;
+        }
 
-		if (column.sortable) {
+        if (column.sortable) {
+            th.style.cursor = 'pointer';
 
-			th.style.cursor = 'pointer';
+            // Show the correct sort icon:
+            //   ↕  (neutral)  — column is not the active sort column
+            //   ↑  (asc)      — column is sorted ascending
+            //   ↓  (desc)     — column is sorted descending
+            const isActive = tableOptions.sortField === column.field;
+            const iconClass = isActive
+                ? (tableOptions.sortDirection === 'asc' ? 'bi-arrow-up text-warning' : 'bi-arrow-down text-warning')
+                : 'bi-arrow-down-up text-muted';
 
-			th.innerHTML = `
-				${column.title}
-				<i class="bi bi-arrow-down-up ms-1"></i>
-			`;
+            th.innerHTML = `${column.title} <i class="bi ${iconClass} ms-1"></i>`;
+            if (isActive) th.classList.add('fw-bold');
 
-			th.addEventListener('click', () => {
+            th.addEventListener('click', () => {
+                if (tableOptions.onSort) {
+                    tableOptions.onSort(column.field);
+                }
+            });
+        }
 
-				if (tableOptions.onSort) {
-					tableOptions.onSort(column.field);
-				}
-			});
-		}
-
-		headerRow.appendChild(th);
-	});
+        headerRow.appendChild(th);
+    });
 
     if (tableOptions.actions.view || tableOptions.actions.edit || tableOptions.actions.delete) {
         const actionsHeader = document.createElement('th');
         actionsHeader.textContent = 'Actions';
         actionsHeader.className = 'table-actions';
         // Rezerwujemy bezpieczną szerokość dla kolumny akcji
-        actionsHeader.style.width = '240px'; 
+        actionsHeader.style.width = '240px';
         headerRow.appendChild(actionsHeader);
     }
 
@@ -104,7 +112,7 @@ function createTable(data, options) {
             actionCell.style.left = 'auto'; // Trzyma kolumnę po prawej stronie
             actionCell.style.width = '240px'; // Musi być identyczna jak szerokość w nagłówku TH
             actionCell.style.padding = '14px'; // Minimalny, estetyczny odstęp od krawędzi wiersza
-            actionCell.style.backgroundColor = 'transparent'; 
+            actionCell.style.backgroundColor = 'transparent';
 
             // KROK 3: Klasy dla przycisków gwarantujące pełną wysokość (h-100) oraz idealne centrowanie tekstu i ikony
             const btnBaseClass = 'btn btn-sm h-100 d-flex align-items-center justify-content-center flex-grow-1 text-nowrap px-2';
