@@ -95,25 +95,38 @@ function renderStatistics(questions) {
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary text-white rounded p-2 me-2"><i class="bi bi-journal-text"></i></div>
-                    <div><div class="text-muted small">Wszystkie</div><div class="fw-bold">${total}</div></div>
+                    {/* WYMUSZENIE BIELEGO KOLORU DLA TEKSTU I LICZBY */}
+                    <div style="color: #ffffff !important;">
+                        <div class="small" style="color: #ffffff !important; opacity: 0.8;">Wszystkie</div>
+                        <div class="fw-bold">${total}</div>
+                    </div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-success text-white rounded p-2 me-2"><i class="bi bi-check2-circle"></i></div>
-                    <div><div class="text-muted small">Solved</div><div class="fw-bold">${resolved}</div></div>
+                    <div style="color: #ffffff !important;">
+                        <div class="small" style="color: #ffffff !important; opacity: 0.8;">Solved</div>
+                        <div class="fw-bold">${resolved}</div>
+                    </div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-warning text-white rounded p-2 me-2"><i class="bi bi-hourglass-split"></i></div>
-                    <div><div class="text-muted small">Open</div><div class="fw-bold">${open}</div></div>
+                    <div style="color: #ffffff !important;">
+                        <div class="small" style="color: #ffffff !important; opacity: 0.8;">Open</div>
+                        <div class="fw-bold">${open}</div>
+                    </div>
                 </div>
             </div>
             <div class="col-6 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="bg-info text-white rounded p-2 me-2"><i class="bi bi-tags"></i></div>
-                    <div><div class="text-muted small">Tagged</div><div class="fw-bold">${tagged}</div></div>
+                    <div style="color: #ffffff !important;">
+                        <div class="small" style="color: #ffffff !important; opacity: 0.8;">Tagged</div>
+                        <div class="fw-bold">${tagged}</div>
+                    </div>
                 </div>
             </div>
         </div>

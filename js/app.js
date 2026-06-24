@@ -110,6 +110,20 @@ function renderCurrentRoute() {
                     renderNotFoundPage();
                 }
                 break;
+            case 'profile':
+                if (typeof renderProfilePage === 'function') {
+                    renderProfilePage();
+                } else {
+                    renderNotFoundPage();
+                }
+                break;
+            case 'admin':
+                if (typeof renderAdminPage === 'function') {
+                    renderAdminPage();
+                } else {
+                    renderNotFoundPage();
+                }
+                break;
             default:
                 renderNotFoundPage();
         }
